@@ -9,6 +9,8 @@ namespace ToDo.Persistent.EntityFramework
     {
         DbSet<ToDoItem> ToDoItems { get; set; }
 
+        DbSet<Event> Events { get; set; }
+
         int SaveChanges(bool acceptAllChangesOnSuccess = true);
 
         Task<int> SaveChangesAsync(bool acceptAllChangesOnSuccess,
