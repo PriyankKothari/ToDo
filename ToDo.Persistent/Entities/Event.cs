@@ -2,7 +2,7 @@
 
 namespace ToDo.Persistent.Entities
 {
-    public class Events
+    public class Event
     {
         public int EventId { get; set; }
 

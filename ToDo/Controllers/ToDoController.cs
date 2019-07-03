@@ -7,5 +7,9 @@ namespace ToDo.Controllers
     [Authorize]
     public class ToDoController : Controller
     {
+        public ToDoController()
+        {
+            
+        }
     }
 }
