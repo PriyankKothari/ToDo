@@ -1,6 +1,5 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace ToDo.Persistent.DbContexts
@@ -19,215 +18,80 @@ namespace ToDo.Persistent.DbContexts
                 .HasAnnotation("Relational:MaxIdentifierLength", 128)
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-            {
-                b.Property<string>("Id")
-                    .ValueGeneratedOnAdd();
+            // IdentityRole
+            modelBuilder.Entity<IdentityRole>().Property(ir => ir.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<IdentityRole>().Property(ir => ir.ConcurrencyStamp).IsConcurrencyToken();
+            modelBuilder.Entity<IdentityRole>().Property(ir => ir.Name).HasMaxLength(256);
+            modelBuilder.Entity<IdentityRole>().Property(ir => ir.NormalizedName).HasMaxLength(256);
+            modelBuilder.Entity<IdentityRole>().HasKey(ir => ir.Id);
+            modelBuilder.Entity<IdentityRole>().HasIndex(ir => ir.NormalizedName).IsUnique().HasName("RoleNameIndex")
+                .HasFilter("[NormalizedName] IS NOT NULL");
+            modelBuilder.Entity<IdentityRole>().ToTable("AspNetRoles", schema: "Identity");
 
-                b.Property<string>("ConcurrencyStamp")
-                    .IsConcurrencyToken();
+            // IdentityRoleClaim
+            modelBuilder.Entity<IdentityRoleClaim<string>>().Property(irc => irc.Id).ValueGeneratedOnAdd()
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+            modelBuilder.Entity<IdentityRoleClaim<string>>().Property(irc => irc.RoleId).IsRequired();
+            modelBuilder.Entity<IdentityRoleClaim<string>>().HasKey(irc => irc.Id);
+            modelBuilder.Entity<IdentityRoleClaim<string>>().HasIndex(irc => irc.RoleId);
+            modelBuilder.Entity<IdentityRoleClaim<string>>().ToTable("AspNetRoleClaims", schema: "Identity");
+            modelBuilder.Entity<IdentityRoleClaim<string>>().HasOne<IdentityRole>().WithMany()
+                .HasForeignKey(irc => irc.RoleId).OnDelete(DeleteBehavior.Cascade);
 
-                b.Property<string>("Name")
-                    .HasMaxLength(256);
+            // IdentityUser
+            modelBuilder.Entity<IdentityUser>().Property(iu => iu.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<IdentityUser>().Property(iu => iu.ConcurrencyStamp).IsConcurrencyToken();
+            modelBuilder.Entity<IdentityUser>().Property(iu => iu.Email).HasMaxLength(256);
+            modelBuilder.Entity<IdentityUser>().Property(iu => iu.NormalizedEmail).HasMaxLength(256);
+            modelBuilder.Entity<IdentityUser>().Property(iu => iu.NormalizedUserName).HasMaxLength(256);
+            modelBuilder.Entity<IdentityUser>().Property(iu => iu.UserName).HasMaxLength(256);
+            modelBuilder.Entity<IdentityUser>().Property(iu => iu.Email).HasMaxLength(256);
+            modelBuilder.Entity<IdentityUser>().HasKey(iu => iu.Id);
+            modelBuilder.Entity<IdentityUser>().HasIndex(iu => iu.NormalizedEmail).HasName("EmailIndex");
+            modelBuilder.Entity<IdentityUser>().HasIndex(iu => iu.NormalizedUserName).IsUnique()
+                .HasName("UserNameIndex").HasFilter("[NormalizedUserName] IS NOT NULL");
+            modelBuilder.Entity<IdentityUser>().ToTable("AspNetUsers", schema: "Identity");
 
-                b.Property<string>("NormalizedName")
-                    .HasMaxLength(256);
+            // IdentityUserClaim
+            modelBuilder.Entity<IdentityUserClaim<string>>().Property(iuc => iuc.Id).ValueGeneratedOnAdd()
+                .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+            modelBuilder.Entity<IdentityUserClaim<string>>().Property(iuc => iuc.UserId).IsRequired();
+            modelBuilder.Entity<IdentityUserClaim<string>>().HasKey(iuc => iuc.Id);
+            modelBuilder.Entity<IdentityUserClaim<string>>().HasIndex(iuc => iuc.UserId);
+            modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("AspNetUserClaims", schema: "Identity");
+            modelBuilder.Entity<IdentityUserClaim<string>>().HasOne<IdentityUser>().WithMany()
+                .HasForeignKey(iuc => iuc.UserId).OnDelete(DeleteBehavior.Cascade);
 
-                b.HasKey("Id");
+            // IdentityUserLogin
+            modelBuilder.Entity<IdentityUserLogin<string>>().Property(iul => iul.LoginProvider).HasMaxLength(128);
+            modelBuilder.Entity<IdentityUserLogin<string>>().Property(iul => iul.ProviderKey).HasMaxLength(128);
+            modelBuilder.Entity<IdentityUserLogin<string>>().Property(iul => iul.UserId).IsRequired();
+            modelBuilder.Entity<IdentityUserLogin<string>>().HasKey(iul => iul.LoginProvider);
+            modelBuilder.Entity<IdentityUserLogin<string>>().HasKey(iul => iul.ProviderKey);
+            modelBuilder.Entity<IdentityUserLogin<string>>().HasIndex(iul => iul.UserId);
+            modelBuilder.Entity<IdentityUserLogin<string>>().ToTable("AspNetUserLogins", schema: "Identity");
+            modelBuilder.Entity<IdentityUserLogin<string>>().HasOne<IdentityUser>().WithMany()
+                .HasForeignKey(iul => iul.UserId).OnDelete(DeleteBehavior.Cascade);
 
-                b.HasIndex("NormalizedName")
-                    .IsUnique()
-                    .HasName("RoleNameIndex")
-                    .HasFilter("[NormalizedName] IS NOT NULL");
+            // IdentityUserRole
+            modelBuilder.Entity<IdentityUserRole<string>>().HasKey(iur => iur.UserId);
+            modelBuilder.Entity<IdentityUserRole<string>>().HasKey(iur => iur.RoleId);
+            modelBuilder.Entity<IdentityUserRole<string>>().HasIndex(iur => iur.RoleId);
+            modelBuilder.Entity<IdentityUserRole<string>>().ToTable("AspNetUserRoles", schema: "Identity");
+            modelBuilder.Entity<IdentityUserRole<string>>().HasOne<IdentityRole>().WithMany()
+                .HasForeignKey(iur => iur.RoleId).OnDelete(DeleteBehavior.Cascade);
+            modelBuilder.Entity<IdentityUserRole<string>>().HasOne<IdentityUser>().WithMany()
+                .HasForeignKey(iur => iur.UserId).OnDelete(DeleteBehavior.Cascade);
 
-                b.ToTable("AspNetRoles", "Identity");
-            });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-            {
-                b.Property<int>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                b.Property<string>("ClaimType");
-
-                b.Property<string>("ClaimValue");
-
-                b.Property<string>("RoleId")
-                    .IsRequired();
-
-                b.HasKey("Id");
-
-                b.HasIndex("RoleId");
-
-                b.ToTable("AspNetRoleClaims", "Identity");
-            });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUser", b =>
-            {
-                b.Property<string>("Id")
-                    .ValueGeneratedOnAdd();
-
-                b.Property<int>("AccessFailedCount");
-
-                b.Property<string>("ConcurrencyStamp")
-                    .IsConcurrencyToken();
-
-                b.Property<string>("Email")
-                    .HasMaxLength(256);
-
-                b.Property<bool>("EmailConfirmed");
-
-                b.Property<bool>("LockoutEnabled");
-
-                b.Property<DateTimeOffset?>("LockoutEnd");
-
-                b.Property<string>("NormalizedEmail")
-                    .HasMaxLength(256);
-
-                b.Property<string>("NormalizedUserName")
-                    .HasMaxLength(256);
-
-                b.Property<string>("PasswordHash");
-
-                b.Property<string>("PhoneNumber");
-
-                b.Property<bool>("PhoneNumberConfirmed");
-
-                b.Property<string>("SecurityStamp");
-
-                b.Property<bool>("TwoFactorEnabled");
-
-                b.Property<string>("UserName")
-                    .HasMaxLength(256);
-
-                b.HasKey("Id");
-
-                b.HasIndex("NormalizedEmail")
-                    .HasName("EmailIndex");
-
-                b.HasIndex("NormalizedUserName")
-                    .IsUnique()
-                    .HasName("UserNameIndex")
-                    .HasFilter("[NormalizedUserName] IS NOT NULL");
-
-                b.ToTable("AspNetUsers", "Identity");
-            });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-            {
-                b.Property<int>("Id")
-                    .ValueGeneratedOnAdd()
-                    .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
-
-                b.Property<string>("ClaimType");
-
-                b.Property<string>("ClaimValue");
-
-                b.Property<string>("UserId")
-                    .IsRequired();
-
-                b.HasKey("Id");
-
-                b.HasIndex("UserId");
-
-                b.ToTable("AspNetUserClaims", "Identity");
-            });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-            {
-                b.Property<string>("LoginProvider")
-                    .HasMaxLength(128);
-
-                b.Property<string>("ProviderKey")
-                    .HasMaxLength(128);
-
-                b.Property<string>("ProviderDisplayName");
-
-                b.Property<string>("UserId")
-                    .IsRequired();
-
-                b.HasKey("LoginProvider", "ProviderKey");
-
-                b.HasIndex("UserId");
-
-                b.ToTable("AspNetUserLogins", "Identity");
-            });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-            {
-                b.Property<string>("UserId");
-
-                b.Property<string>("RoleId");
-
-                b.HasKey("UserId", "RoleId");
-
-                b.HasIndex("RoleId");
-
-                b.ToTable("AspNetUserRoles", "Identity");
-            });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-            {
-                b.Property<string>("UserId");
-
-                b.Property<string>("LoginProvider")
-                    .HasMaxLength(128);
-
-                b.Property<string>("Name")
-                    .HasMaxLength(128);
-
-                b.Property<string>("Value");
-
-                b.HasKey("UserId", "LoginProvider", "Name");
-
-                b.ToTable("AspNetUserTokens", "Identity");
-            });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
-            {
-                b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
-                    .WithMany()
-                    .HasForeignKey("RoleId")
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserClaim<string>", b =>
-            {
-                b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
-                    .WithMany()
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserLogin<string>", b =>
-            {
-                b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
-                    .WithMany()
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserRole<string>", b =>
-            {
-                b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole")
-                    .WithMany()
-                    .HasForeignKey("RoleId")
-                    .OnDelete(DeleteBehavior.Cascade);
-
-                b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
-                    .WithMany()
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityUserToken<string>", b =>
-            {
-                b.HasOne("Microsoft.AspNetCore.Identity.IdentityUser")
-                    .WithMany()
-                    .HasForeignKey("UserId")
-                    .OnDelete(DeleteBehavior.Cascade);
-            });
+            // IdentityUserToken
+            modelBuilder.Entity<IdentityUserToken<string>>().Property(iut => iut.LoginProvider).HasMaxLength(128);
+            modelBuilder.Entity<IdentityUserToken<string>>().Property(iut => iut.Name).HasMaxLength(128);
+            modelBuilder.Entity<IdentityUserToken<string>>().HasKey(iut => iut.UserId);
+            modelBuilder.Entity<IdentityUserToken<string>>().HasKey(iut => iut.LoginProvider);
+            modelBuilder.Entity<IdentityUserToken<string>>().HasKey(iut => iut.Name);
+            modelBuilder.Entity<IdentityUserToken<string>>().ToTable("AspNetUserTokens", schema: "Identity");
+            modelBuilder.Entity<IdentityUserToken<string>>().HasOne<IdentityUser>().WithMany()
+                .HasForeignKey(iut => iut.UserId).OnDelete(DeleteBehavior.Cascade);
         }
     }
 }
