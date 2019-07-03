@@ -1,9 +1,9 @@
 ﻿using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
-using ToDo.Persistent.Entities;
+using ToDo.Persistent.DbObjects;
 
-namespace ToDo.Persistent.EntityFramework
+namespace ToDo.Persistent.DbContexts
 {
     public interface IToDoDbContext
     {

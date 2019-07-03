@@ -1,7 +1,7 @@
 ﻿using System;
 using ToDo.Persistent.DbEnums;
 
-namespace ToDo.Persistent.Entities
+namespace ToDo.Persistent.DbObjects
 {
     public class ToDoItem
     {

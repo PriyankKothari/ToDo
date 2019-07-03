@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace ToDo.Persistent.Entities
+namespace ToDo.Persistent.DbObjects
 {
     public class Event
     {

@@ -1,7 +1,7 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ToDo.Persistent.Entities;
+using ToDo.Persistent.DbObjects;
 
-namespace ToDo.Persistent.EntityFramework
+namespace ToDo.Persistent.DbContexts
 {
     public class ToDoDbContext : DbContext, IToDoDbContext
     {
