@@ -1,8 +1,6 @@
 ﻿using System;
-using System.Text;
-using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.ServiceBus;
+using Microsoft.ServiceBus.Messaging;
 using ToDo.ServiceBus.MessageClient;
 
 namespace ToDo.ServiceBus.MessageProcessors
@@ -16,25 +14,41 @@ namespace ToDo.ServiceBus.MessageProcessors
             this._queueClient = queueClient;
         }
 
-        public async Task ProcessMessage(string messageBody, Func<Message, CancellationToken, Task> processMessage)
+        public async Task<BrokeredMessage> ProcessMessage(string messageBody)
         {
             // send message
-            await this._queueClient.GetMessageClient().SendAsync(new Message(Encoding.UTF8.GetBytes(messageBody)));
-
-            // receive & process message
-            this._queueClient.GetMessageClient().RegisterMessageHandler(processMessage,
-                new MessageHandlerOptions(ExceptionReceivedHandler) { MaxConcurrentCalls = 1, AutoComplete = false });
+            await this.SendMessages(messageBody);
+            
+            // receive message
+            return await this.ReceiveMessages();
         }
 
-        private static Task ExceptionReceivedHandler(ExceptionReceivedEventArgs exceptionReceivedEventArgs)
+        private async Task SendMessages(string messageBody)
         {
-            Console.WriteLine($"Message handler encountered an exception {exceptionReceivedEventArgs.Exception}.");
-            var context = exceptionReceivedEventArgs.ExceptionReceivedContext;
-            Console.WriteLine("Exception context for troubleshooting:");
-            Console.WriteLine($"- Endpoint: {context.Endpoint}");
-            Console.WriteLine($"- Entity Path: {context.EntityPath}");
-            Console.WriteLine($"- Executing Action: {context.Action}");
-            return Task.CompletedTask;
+            try
+            {
+                await this._queueClient.QueueClient.SendAsync(new BrokeredMessage(messageBody));
+            }
+            catch (MessagingException exception)
+            {
+                throw exception.IsTransient
+                    ? new Exception(exception.Message)
+                    : new MessagingException(exception.Message);
+            }
+        }
+
+        private async Task<BrokeredMessage> ReceiveMessages()
+        {
+            try
+            {
+                return await this._queueClient.QueueClient.ReceiveAsync(TimeSpan.FromSeconds(30));
+            }
+            catch (MessagingException exception)
+            {
+                throw exception.IsTransient
+                    ? new Exception(exception.Message)
+                    : new MessagingException(exception.Message);
+            }
         }
     }
 }

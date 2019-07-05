@@ -5,6 +5,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using ToDo.Domain.Extensions;
 using ToDo.Persistent.DbContexts;
 using ToDo.Persistent.DbEnums;
@@ -19,6 +20,7 @@ namespace ToDo.Persistent.DbServices
         private ToDoService(IToDoDbContext toDoDbContext)
         {
             this._toDoDbContext = toDoDbContext;
+            
         }
 
         public async Task<List<ToDoItem>> GetItems(int userId)
