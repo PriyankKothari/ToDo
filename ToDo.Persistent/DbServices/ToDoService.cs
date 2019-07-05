@@ -2,26 +2,27 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.Azure.ServiceBus;
 using Microsoft.EntityFrameworkCore;
 using ToDo.Domain.Extensions;
 using ToDo.Persistent.DbContexts;
 using ToDo.Persistent.DbEnums;
 using ToDo.Persistent.DbObjects;
-using Microsoft.ServiceBus.Messaging;
 
 namespace ToDo.Persistent.DbServices
 {
     public class ToDoService : IToDoService
     {
         private readonly IToDoDbContext _toDoDbContext;
-        private readonly QueueClient _queueClient;
+        private readonly IQueueClient _queueClient;
 
         private ToDoService(IToDoDbContext toDoDbContext, string serviceBusConnectionString, string queueName)
         {
             this._toDoDbContext = toDoDbContext;
-            this._queueClient = QueueClient.CreateFromConnectionString(serviceBusConnectionString, queueName);
+            this._queueClient = new QueueClient(serviceBusConnectionString, queueName);
         }
 
         public async Task<List<ToDoItem>> GetItems(int userId)
@@ -89,13 +90,11 @@ namespace ToDo.Persistent.DbServices
 
                 try
                 {
-                    await this._queueClient.SendAsync(new BrokeredMessage(string.Empty));
+                    await this._queueClient.SendAsync(new Message(Encoding.UTF8.GetBytes(string.Empty)));
                 }
-                catch (MessagingException exception)
+                catch (Exception exception)
                 {
-                    throw exception.IsTransient
-                        ? new Exception(exception.Message)
-                        : new MessagingException(exception.Message);
+                    throw new Exception(exception.Message);
                 }
 
                 #endregion
@@ -137,16 +136,7 @@ namespace ToDo.Persistent.DbServices
 
                 #region Push Message to Azure Service Bus
 
-                try
-                {
-                    await this._queueClient.SendAsync(new BrokeredMessage(string.Empty));
-                }
-                catch (MessagingException exception)
-                {
-                    throw exception.IsTransient
-                        ? new Exception(exception.Message)
-                        : new MessagingException(exception.Message);
-                }
+                await this._queueClient.SendAsync(new Message(Encoding.UTF8.GetBytes(string.Empty)));
 
                 #endregion
 
@@ -183,16 +173,7 @@ namespace ToDo.Persistent.DbServices
 
                 #region Push Message to Azure Service Bus
 
-                try
-                {
-                    await this._queueClient.SendAsync(new BrokeredMessage(string.Empty));
-                }
-                catch (MessagingException exception)
-                {
-                    throw exception.IsTransient
-                        ? new Exception(exception.Message)
-                        : new MessagingException(exception.Message);
-                }
+                await this._queueClient.SendAsync(new Message(Encoding.UTF8.GetBytes(string.Empty)));
 
                 #endregion
 
@@ -227,16 +208,7 @@ namespace ToDo.Persistent.DbServices
 
                 #region Push Message to Azure Service Bus
 
-                try
-                {
-                    await this._queueClient.SendAsync(new BrokeredMessage(string.Empty));
-                }
-                catch (MessagingException exception)
-                {
-                    throw exception.IsTransient
-                        ? new Exception(exception.Message)
-                        : new MessagingException(exception.Message);
-                }
+                await this._queueClient.SendAsync(new Message(Encoding.UTF8.GetBytes(string.Empty)));
 
                 #endregion
             }
