@@ -1,4 +1,6 @@
 using System.IO;
+using FluentValidation;
+using FluentValidation.AspNetCore;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -12,10 +14,13 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 using ToDo.Constraints;
+using ToDo.Filters;
 using ToDo.Models;
 using ToDo.Persistent.DbContexts;
+using ToDo.Persistent.DbObjects;
 using ToDo.Persistent.DbServices;
 using ToDo.ServiceBus.MessageSenders;
+using ToDo.Validators;
 
 namespace ToDo
 {
@@ -48,28 +53,33 @@ namespace ToDo
                 options.SerializerSettings.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
             });
 
-            // injecting AuthorisationDbContext with Identity
+            // registering fluent validation, action filter & constraint for Enum
+            services.AddMvc().AddFluentValidation(fv => fv.RegisterValidatorsFromAssemblyContaining<Startup>());
+            services.AddMvc(options => options.Filters.Add(typeof(ValidatorActionFilter)));
+            services.Configure<RouteOptions>(options =>
+                options.ConstraintMap.Add("ItemStatus", typeof(ItemStatusEnumConstraint)));
+
+            // registering AuthorisationDbContext with Identity
             services.AddDbContext<AuthorisationDbContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("AuthorisationConnectionString")))
                 .AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AuthorisationDbContext>();
 
-           // injecting ToDoDbContext
+           // registering ToDoDbContext
            services.AddDbContext<ToDoDbContext>(options =>
             {
                 options.UseSqlServer(Configuration.GetConnectionString("ToDoConnectionString"));
             });
 
-            //dependency injection for Services
+            // registering Services & validators
             services.AddScoped<UserManager<ApplicationUser>>();
             services.AddScoped<IToDoDbContext, ToDoDbContext>();
             services.AddScoped<IToDoService, ToDoService>();
             services.AddScoped<IMessageSender>(provider =>
                 new MessageSender(Configuration["MicrosoftAzure:ServiceBus:ConnectionString"].ToString(),
                     Configuration["MicrosoftAzure:ServiceBus:Queue:ToDo:Name"].ToString()));
+            services.AddTransient<IValidator<ToDoItem>, ToDoItemValidator>();
 
-            services.Configure<RouteOptions>(options =>
-                options.ConstraintMap.Add("ItemStatus", typeof(ItemStatusEnumConstraint)));
-
+            // registering swagger
             services.AddSwaggerGen(options =>
             {
                 var provider = services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
