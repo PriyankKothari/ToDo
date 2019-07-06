@@ -1,0 +1,316 @@
+/*
+	EXECUTE THE QUERIES IN FOLLOWING ORDER:
+
+	1. RUN STEP 1 - CREATE DATABASE ToDos
+	2. COMMENT OUT STEP 1
+	3. RUN STEP 2 - CREATE TABLES AND INSERT DATA
+*/
+
+-- STEP 1 - CREATE DATABASE ToDo
+/*
+IF  NOT EXISTS (SELECT 1 FROM sys.databases WHERE name = N'ToDo')
+BEGIN
+    CREATE DATABASE [ToDo]
+END;
+*/
+
+-- STEP 2 - CREATE TABLES AND INSERT DATA
+USE ToDo;
+GO
+
+-- Authorization
+CREATE SCHEMA [Identity]
+GO
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetRoleClaims' AND TABLE_SCHEMA = 'Identity')
+BEGIN
+	CREATE TABLE [Identity].[AspNetRoleClaims]
+	(
+		ID			INT				NOT NULL	IDENTITY (1, 1),
+		RoleId		NVARCHAR (450)	NOT NULL,
+		ClaimType	NVARCHAR (MAX)	NULL,
+		ClaimValue	NVARCHAR (MAX)	NULL,
+		CONSTRAINT [PK_AspNetRoleClaims] PRIMARY KEY CLUSTERED
+		([Id] ASC) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetRoles' AND TABLE_SCHEMA = 'Identity')
+BEGIN
+	CREATE TABLE [Identity].[AspNetRoles]
+	(
+		Id					NVARCHAR (450)	NOT NULL,
+		Name				NVARCHAR (256)	NULL,
+		NormalizedName		NVARCHAR (256)	NULL,
+		ConcurrencyStamp	NVARCHAR (MAX)	NULL,
+		CONSTRAINT [PK_AspNetRoles] PRIMARY KEY CLUSTERED 
+		([Id] ASC) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetUserClaims' AND TABLE_SCHEMA = 'Identity')
+BEGIN
+	CREATE TABLE [Identity].[AspNetUserClaims]
+	(
+		Id	INT	NOT NULL IDENTITY(1, 1),
+		UserId	NVARCHAR (450)	NOT NULL,
+		ClaimType	NVARCHAR (MAX)	NULL,
+		ClaimValue	NVARCHAR (MAX)	NULL,
+		CONSTRAINT [PK_AspNetUserClaims] PRIMARY KEY CLUSTERED 
+		([Id] ASC) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetUserLogins' AND TABLE_SCHEMA = 'Identity')
+BEGIN
+	CREATE TABLE [Identity].[AspNetUserLogins]
+	(
+		LoginProvider		NVARCHAR (128)	NOT NULL,
+		ProviderKey			NVARCHAR (128)	NOT NULL,
+		ProviderDisplayName	NVARCHAR (MAX)	NULL,
+		UserId				NVARCHAR (450)	NOT NULL,
+		CONSTRAINT [PK_AspNetUserLogins] PRIMARY KEY CLUSTERED 
+		([LoginProvider] ASC, [ProviderKey] ASC) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetUserRoles' AND TABLE_SCHEMA = 'Identity')
+BEGIN
+	CREATE TABLE [Identity].[AspNetUserRoles]
+	(
+		UserId	NVARCHAR (450)	NOT NULL,
+		RoleId	NVARCHAR (450)	NOT NULL,
+		CONSTRAINT [PK_AspNetUserRoles] PRIMARY KEY CLUSTERED 
+		([UserId] ASC, [RoleId] ASC) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY]
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetUsers' AND TABLE_SCHEMA = 'Identity')
+BEGIN
+	CREATE TABLE [Identity].[AspNetUsers]
+	(
+		Id						NVARCHAR (450)		NOT NULL,
+		UserName				NVARCHAR (256)		NULL,
+		NormalizedUserName		NVARCHAR (256)		NULL,
+		Email					NVARCHAR (256)		NULL,
+		NormalizedEmail			NVARCHAR (256)		NULL,
+		EmailConfirmed			BIT					NOT NULL,
+		PasswordHash			NVARCHAR (MAX)		NULL,
+		SecurityStamp			NVARCHAR (MAX)		NULL,
+		ConcurrencyStamp		NVARCHAR (MAX)		NULL,
+		PhoneNumber				NVARCHAR (MAX)		NULL,
+		PhoneNumberConfirmed	BIT					NOT NULL,
+		TwoFactorEnabled		BIT					NOT NULL,
+		LockoutEnd				DATETIMEOFFSET(7)	NULL,
+		LockoutEnabled			BIT					NOT NULL,
+		AccessFailedCount		INT					NOT NULL,
+		CONSTRAINT [PK_AspNetUsers] PRIMARY KEY CLUSTERED
+		([Id] ASC) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'AspNetUserTokens' AND TABLE_SCHEMA = 'Identity')
+BEGIN
+	CREATE TABLE [Identity].[AspNetUserTokens]
+	(
+		UserId			NVARCHAR (450)	NOT NULL,
+		LoginProvider	NVARCHAR (128)	NOT NULL,
+		Name			NVARCHAR (128)	NOT NULL,
+		Value			NVARCHAR (MAX)	NULL,
+		CONSTRAINT [PK_AspNetUserTokens] PRIMARY KEY CLUSTERED
+		([UserId] ASC, [LoginProvider] ASC, [Name] ASC) WITH (PAD_INDEX = OFF, STATISTICS_NORECOMPUTE = OFF, IGNORE_DUP_KEY = OFF, ALLOW_ROW_LOCKS = ON, ALLOW_PAGE_LOCKS = ON) ON [PRIMARY]
+	) ON [PRIMARY] TEXTIMAGE_ON [PRIMARY]
+END
+GO
+
+ALTER TABLE
+	[Identity].[AspNetRoleClaims]
+WITH CHECK ADD  CONSTRAINT
+	[FK_AspNetRoleClaims_AspNetRoles_RoleId] FOREIGN KEY([RoleId])
+REFERENCES
+	[Identity].[AspNetRoles] ([Id])
+ON DELETE CASCADE
+
+ALTER TABLE
+	[Identity].[AspNetRoleClaims]
+CHECK CONSTRAINT
+	[FK_AspNetRoleClaims_AspNetRoles_RoleId]
+
+ALTER TABLE
+	[Identity].[AspNetUserClaims]
+WITH CHECK ADD CONSTRAINT
+	[FK_AspNetUserClaims_AspNetUsers_UserId] FOREIGN KEY([UserId])
+REFERENCES
+	[Identity].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+
+ALTER TABLE
+	[Identity].[AspNetUserClaims]
+CHECK CONSTRAINT
+	[FK_AspNetUserClaims_AspNetUsers_UserId]
+
+ALTER TABLE
+	[Identity].[AspNetUserLogins]
+WITH CHECK ADD CONSTRAINT
+	[FK_AspNetUserLogins_AspNetUsers_UserId]
+FOREIGN KEY
+	([UserId])
+REFERENCES
+	[Identity].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+
+ALTER TABLE
+	[Identity].[AspNetUserLogins]
+CHECK CONSTRAINT
+	[FK_AspNetUserLogins_AspNetUsers_UserId]
+
+ALTER TABLE
+	[Identity].[AspNetUserRoles]
+WITH CHECK ADD CONSTRAINT
+	[FK_AspNetUserRoles_AspNetRoles_RoleId]
+FOREIGN KEY
+	([RoleId])
+REFERENCES
+	[Identity].[AspNetRoles] ([Id])
+ON DELETE CASCADE
+
+ALTER TABLE
+	[Identity].[AspNetUserRoles]
+CHECK CONSTRAINT
+	[FK_AspNetUserRoles_AspNetRoles_RoleId]
+
+ALTER TABLE
+	[Identity].[AspNetUserRoles]
+WITH CHECK ADD CONSTRAINT
+	[FK_AspNetUserRoles_AspNetUsers_UserId]
+FOREIGN KEY
+	([UserId])
+REFERENCES
+	[Identity].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+
+ALTER TABLE
+	[Identity].[AspNetUserRoles]
+CHECK CONSTRAINT
+	[FK_AspNetUserRoles_AspNetUsers_UserId]
+
+ALTER TABLE
+	[Identity].[AspNetUserTokens]
+WITH CHECK ADD CONSTRAINT
+	[FK_AspNetUserTokens_AspNetUsers_UserId]
+FOREIGN KEY
+	([UserId])
+REFERENCES
+	[Identity].[AspNetUsers] ([Id])
+ON DELETE CASCADE
+
+ALTER TABLE
+	[Identity].[AspNetUserTokens]
+CHECK CONSTRAINT
+	[FK_AspNetUserTokens_AspNetUsers_UserId]
+GO
+
+-- ToDo
+CREATE SCHEMA ToDo
+GO
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Items' AND TABLE_SCHEMA = 'ToDo')
+BEGIN
+	CREATE TABLE [ToDo].[Items]
+	(
+		ItemId			INT					NOT NULL	IDENTITY (1, 1),
+		ItemTitle		VARCHAR (100)		NOT NULL,
+		ItemStatus		VARCHAR (10)		NOT NULL,
+		UserId			UNIQUEIDENTIFIER	NOT NULL,
+		ItemDueOn		DATETIMEOFFSET		NOT NULL,
+		CONSTRAINT [PK_Items] PRIMARY KEY NONCLUSTERED ([ItemId])
+	)
+END
+GO
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'ItemStatusLokUp' AND TABLE_SCHEMA = 'ToDo')
+BEGIN
+	CREATE TABLE [ToDo].[ItemStatusLookUp]
+	(
+		[ItemStatusLookUp]	UNIQUEIDENTIFIER	NOT NULL,
+		[Code]				VARCHAR (50)		NOT NULL,
+		[DisplayValue]		VARCHAR (100)		NOT NULL,
+		[Description]		VARCHAR (255)		NULL,
+		[Class]				CHAR (32)			NULL		CONSTRAINT DF_ItemStatusLookUp_Class	DEFAULT ('ItemStatus'),
+		[Enabled]			BIT					NOT NULL	CONSTRAINT DF_ItemStatusLookUp_Enabled	DEFAULT (1),
+		[Order]				SMALLINT			NULL,
+		[Visible]			BIT					NOT NULL	CONSTRAINT DF_ItemStatusLookUp_Visible	DEFAULT (1),
+		CONSTRAINT [PK_ItemStatusLookUp]		PRIMARY KEY NONCLUSTERED	([ItemStatusLookUp] ASC), 
+		CONSTRAINT [AK_ItemStatusLookUp_Code]	UNIQUE CLUSTERED			([Code])
+	)
+END
+GO
+
+MERGE INTO
+	[ToDo].[ItemStatusLookUp] AS dst
+USING
+(
+	VALUES
+	  ( '09C1897E-3E6B-44D3-8515-DA6FEBBE869D',	'ToDo',			'ToDo',			'The task has been created, but it is not started.',		'ItemStatus',	1 )
+	, ( '43A5CF00-8A94-4C2A-BF35-2BA36956B398', 'InProgress',	'InProgress',	'The task has been in progress, but it is not completed.',	'ItemStatus',	2 )
+	, ( 'E78384BC-A719-432F-BA79-0A4CDD4E186A', 'Completed',	'Completed',	'The task has been completed.',								'ItemStatus',	3 )
+)
+AS
+	src ( ItemStatusLookUp, ItemStatus, DisplayValue, [Description], Class, [Order] )
+ON
+	src.ItemStatus = dst.Code
+WHEN
+	MATCHED
+THEN
+	UPDATE
+		SET
+			  DisplayValue	=	src.DisplayValue
+			, [Description]	=	src.[Description]
+			, Class			=	src.Class
+WHEN
+	NOT MATCHED BY TARGET
+THEN
+	INSERT
+		(
+			  ItemStatusLookUp
+			, Code
+			, DisplayValue
+			, [Description]
+			, Class
+			, [Order]
+		)
+	VALUES
+		(
+			  src.ItemStatusLookUp
+			, src.ItemStatus
+			, src.DisplayValue
+			, src.[Description]
+			, src.Class
+			, src.[Order]
+		);
+GO
+
+-- EventStore
+CREATE SCHEMA EventStore
+GO
+
+IF NOT EXISTS (SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'Events' AND TABLE_SCHEMA = 'EventStore')
+BEGIN
+	CREATE TABLE [EventStore].[Events]
+	(
+		EventId			UNIQUEIDENTIFIER	NOT NULL,
+		EventType		VARCHAR (100)		NOT NULL,
+		AggregateId		UNIQUEIDENTIFIER	NOT NULL,
+		AggregateName	VARCHAR (100)		NOT NULL,
+		EventCreatedOn	DATETIME			NOT NULL,
+		EventPayLoad	NVARCHAR (MAX)		NOT NULL,
+		CONSTRAINT [PK_Events] PRIMARY KEY NONCLUSTERED ([EventId])
+	)
+END
+GO

@@ -73,6 +73,7 @@ namespace ToDo
             services.AddScoped<UserManager<IdentityUser>>();
             services.AddScoped<IToDoDbContext, ToDoDbContext>();
             services.AddScoped<IToDoService, ToDoService>();
+            services.AddScoped<IEventStoreService, EventStoreService>();
             services.AddScoped<IMessageSender>(provider =>
                 new MessageSender(Configuration["MicrosoftAzure:ServiceBus:ConnectionString"].ToString(),
                     Configuration["MicrosoftAzure:ServiceBus:Queue:ToDo:Name"].ToString()));
