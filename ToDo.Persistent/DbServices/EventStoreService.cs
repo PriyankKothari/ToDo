@@ -12,7 +12,7 @@ namespace ToDo.Persistent.DbServices
     {
         private readonly IToDoDbContext _toDoDbContext;
 
-        private EventStoreService(IToDoDbContext toDoDbContext)
+        public EventStoreService(IToDoDbContext toDoDbContext)
         {
             this._toDoDbContext = toDoDbContext;
         }
@@ -22,7 +22,7 @@ namespace ToDo.Persistent.DbServices
             return await this._toDoDbContext.Events.AsNoTracking().ToListAsync(CancellationToken.None);
         }
 
-        public async Task CreateEvent(Event createEvent)
+        public async Task<Event> CreateEvent(Event createEvent)
         {
             try
             {
@@ -39,6 +39,8 @@ namespace ToDo.Persistent.DbServices
                 this._toDoDbContext.Events.Add(eventToCreate);
 
                 await this._toDoDbContext.SaveChangesAsync(true, CancellationToken.None);
+
+                return eventToCreate;
             }
             catch (DbUpdateException exception)
             {

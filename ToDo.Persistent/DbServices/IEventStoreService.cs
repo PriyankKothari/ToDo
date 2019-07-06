@@ -8,6 +8,6 @@ namespace ToDo.Persistent.DbServices
     {
         Task<List<Event>> GetEvents();
 
-        Task CreateEvent(Event newEvent);
+        Task<Event> CreateEvent(Event newEvent);
     }
 }
