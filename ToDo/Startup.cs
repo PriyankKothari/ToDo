@@ -15,7 +15,6 @@ using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
 using ToDo.Constraints;
 using ToDo.Filters;
-using ToDo.Models;
 using ToDo.Persistent.DbContexts;
 using ToDo.Persistent.DbObjects;
 using ToDo.Persistent.DbServices;

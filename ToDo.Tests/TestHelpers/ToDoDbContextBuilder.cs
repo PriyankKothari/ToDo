@@ -63,7 +63,7 @@ namespace ToDo.Tests.TestHelpers
             return this;
         }
 
-        public ToDoDbContextBuilder WithEvent(int eventId, string eventType, int aggregateId, string aggregateName,
+        public ToDoDbContextBuilder WithEvent(Guid eventId, string eventType, Guid aggregateId, string aggregateName,
             string eventPayLoad, DateTime eventCreateDateTime)
         {
             var @event = new Event

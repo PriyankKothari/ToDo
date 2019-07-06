@@ -5,8 +5,10 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.EntityFrameworkCore;
 using ToDo.Domain.Extensions;
+using ToDo.Domain.Helpers;
 using ToDo.Persistent.DbContexts;
 using ToDo.Persistent.DbEnums;
 using ToDo.Persistent.DbObjects;
@@ -89,7 +91,16 @@ namespace ToDo.Persistent.DbServices
 
                 #region Push Message to Azure Service Bus
 
-                await this._messageSender.SendMessage(string.Empty);
+                var createdEvent = new Event
+                {
+                    EventId = Guid.NewGuid(),
+                    EventType = "ItemAdded",
+                    AggregateId = Guid.Parse(user.Id),
+                    AggregateName = "ToDoItem",
+                    EventCreateDateTime = DateTime.Now,
+                    EventPayLoad = item.ObjectToJson()
+                };
+                await this._messageSender.SendMessage(createdEvent.ObjectToJson());
 
                 #endregion
 
@@ -130,7 +141,16 @@ namespace ToDo.Persistent.DbServices
 
                 #region Push Message to Azure Service Bus
 
-                await this._messageSender.SendMessage(string.Empty);
+                var updatedEvent = new Event
+                {
+                    EventId = Guid.NewGuid(),
+                    EventType = "ItemUpdated",
+                    AggregateId = Guid.Parse(user.Id),
+                    AggregateName = "ToDoItem",
+                    EventCreateDateTime = DateTime.Now,
+                    EventPayLoad = item.ObjectToJson()
+                };
+                await this._messageSender.SendMessage(updatedEvent.ObjectToJson());
 
                 #endregion
 
@@ -167,7 +187,16 @@ namespace ToDo.Persistent.DbServices
 
                 #region Push Message to Azure Service Bus
 
-                await this._messageSender.SendMessage(string.Empty);
+                var patchedEvent = new Event
+                {
+                    EventId = Guid.NewGuid(),
+                    EventType = "ItemPatched",
+                    AggregateId = Guid.Parse(user.Id),
+                    AggregateName = "ToDoItem",
+                    EventCreateDateTime = DateTime.Now,
+                    EventPayLoad = $"{{ItemStatus: {itemStatus}}}"
+                };
+                await this._messageSender.SendMessage(patchedEvent.ObjectToJson());
 
                 #endregion
 
@@ -202,6 +231,15 @@ namespace ToDo.Persistent.DbServices
 
                 #region Push Message to Azure Service Bus
 
+                var deletedEvent = new Event
+                {
+                    EventId = Guid.NewGuid(),
+                    EventType = "ItemDeleted",
+                    AggregateId = Guid.Parse(user.Id),
+                    AggregateName = "ToDoItem",
+                    EventCreateDateTime = DateTime.Now,
+                    EventPayLoad = itemToDelete.ObjectToJson()
+                };
                 await this._messageSender.SendMessage(string.Empty);
 
                 #endregion

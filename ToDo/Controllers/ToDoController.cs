@@ -5,7 +5,6 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using ToDo.Models;
 using ToDo.Persistent.DbEnums;
 using ToDo.Persistent.DbObjects;
 using ToDo.Persistent.DbServices;

@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using ToDo.Persistent.DbObjects;
 using ToDo.Persistent.DbServices;
@@ -10,6 +11,7 @@ namespace ToDo.Tests.Services
     public class EventStoreServiceTests
     {
         private IEventStoreService _eventStoreService;
+        private readonly IdentityUser _testUser = new IdentityUser("TestUser");
 
         [TestMethod]
         public void ShouldReturn_NoEvents_When_NoEventsExists()
@@ -29,11 +31,13 @@ namespace ToDo.Tests.Services
         public void ShouldReturn_AllEvents_When_EventsExist()
         {
             //set up
+            Guid eventId = Guid.NewGuid();
+
             var @event = new Event
             {
-                EventId = 1,
+                EventId = eventId,
                 EventType = "ToDoItemAdded",
-                AggregateId = 1,
+                AggregateId = Guid.Parse(_testUser.Id),
                 AggregateName = "ToDoItem",
                 EventPayLoad = "Json String as Event Payload",
                 EventCreateDateTime = DateTime.Now
@@ -52,7 +56,6 @@ namespace ToDo.Tests.Services
             Assert.IsNotNull(result);
             Assert.AreEqual(1, result.Count);
 
-            Assert.AreEqual(@event.EventId, result[0].EventId);
             Assert.AreEqual(@event.EventType, result[0].EventType);
             Assert.AreEqual(@event.AggregateId, result[0].AggregateId);
             Assert.AreEqual(@event.AggregateName, result[0].AggregateName);
@@ -66,9 +69,9 @@ namespace ToDo.Tests.Services
             //set up
             var eventToCreate = new Event
             {
-                EventId = 1,
+                EventId = Guid.NewGuid(),
                 EventType = "ToDoItemAdded",
-                AggregateId = 1,
+                AggregateId = Guid.Parse(_testUser.Id),
                 AggregateName = "ToDoItem",
                 EventPayLoad = "Json String as Event Payload",
                 EventCreateDateTime = DateTime.Now

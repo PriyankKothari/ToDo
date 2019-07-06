@@ -4,11 +4,11 @@ namespace ToDo.Persistent.DbObjects
 {
     public class Event
     {
-        public int EventId { get; set; }
+        public Guid EventId { get; set; }
 
         public string EventType { get; set; }
 
-        public int AggregateId { get; set; }
+        public Guid AggregateId { get; set; }
 
         public string AggregateName { get; set; }
 

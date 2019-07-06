@@ -28,7 +28,6 @@ namespace ToDo.Persistent.DbContexts
 
             // Event
             modelBuilder.Entity<Event>().ToTable("Events", schema: "EventStore").HasKey(ev => ev.EventId);
-            modelBuilder.Entity<Event>().Property(ev => ev.EventId).ValueGeneratedOnAdd();
             modelBuilder.Entity<Event>().Property(ev => ev.EventType).HasMaxLength(100);
             modelBuilder.Entity<Event>().Property(ev => ev.AggregateName).HasMaxLength(100);
             modelBuilder.Entity<Event>().Property(ev => ev.EventPayLoad).HasConversion(
