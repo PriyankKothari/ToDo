@@ -62,7 +62,7 @@ namespace ToDo
             // registering AuthorisationDbContext with Identity
             services.AddDbContext<AuthorisationDbContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("AuthorisationConnectionString")))
-                .AddIdentity<ApplicationUser, IdentityRole>().AddEntityFrameworkStores<AuthorisationDbContext>();
+                .AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<AuthorisationDbContext>();
 
            // registering ToDoDbContext
            services.AddDbContext<ToDoDbContext>(options =>
@@ -71,7 +71,7 @@ namespace ToDo
             });
 
             // registering Services & validators
-            services.AddScoped<UserManager<ApplicationUser>>();
+            services.AddScoped<UserManager<IdentityUser>>();
             services.AddScoped<IToDoDbContext, ToDoDbContext>();
             services.AddScoped<IToDoService, ToDoService>();
             services.AddScoped<IMessageSender>(provider =>

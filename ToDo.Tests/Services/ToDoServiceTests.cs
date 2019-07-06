@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ToDo.Persistent.DbEnums;
@@ -14,6 +15,7 @@ namespace ToDo.Tests.Services
     public class ToDoServiceTests
     {
         private IToDoService _toDoService;
+        private readonly IdentityUser _testUser = new IdentityUser("TestUser");
 
 
         [TestMethod]
@@ -27,7 +29,7 @@ namespace ToDo.Tests.Services
                 new ToDoService(new ToDoDbContextBuilder().UseInMemorySqlite().Build(), messageSender.Object);
 
             // test
-            var result = this._toDoService.GetItems(It.IsAny<int>()).Result;
+            var result = this._toDoService.GetItems(_testUser).Result;
 
             // assert
             Assert.IsNotNull(result);
@@ -40,19 +42,17 @@ namespace ToDo.Tests.Services
         public void ShouldReturn_AllToDoItems_When_ToDoItemsExist()
         {
             //set up
-            int userId = 1;
-
             var toDoItem = new ToDoItem
             {
                 ItemId = 1,
                 ItemTitle = "Test To Do Item",
                 ItemStatus = ToDoStatuses.ToDo,
                 ItemDueOn = DateTimeOffset.Now.AddHours(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
-            var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite()
-                .WithToDoItem(toDoItem.ItemId, toDoItem.ItemTitle, toDoItem.ItemStatus, toDoItem.ItemDueOn, toDoItem.UserId).Build();
+            var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite().WithToDoItem(toDoItem.ItemId,
+                toDoItem.ItemTitle, toDoItem.ItemStatus, toDoItem.ItemDueOn, toDoItem.UserId).Build();
 
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
@@ -60,7 +60,7 @@ namespace ToDo.Tests.Services
             this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
 
             // test
-            var result = this._toDoService.GetItems(userId).Result;
+            var result = this._toDoService.GetItems(_testUser).Result;
 
             // assert
             Assert.IsNotNull(result);
@@ -78,15 +78,13 @@ namespace ToDo.Tests.Services
         public void ShouldReturn_Null_When_NoToDoItemsByToDoStatusFound()
         {
             //set up
-            int userId = 1;
-
             var toDoItem = new ToDoItem
             {
                 ItemId = 1,
                 ItemTitle = "Test To Do Item",
                 ItemStatus = ToDoStatuses.InProgress,
                 ItemDueOn = DateTimeOffset.Now.AddHours(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite()
@@ -98,7 +96,7 @@ namespace ToDo.Tests.Services
             this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
 
             // test
-            var result = this._toDoService.GetItemsByStatus(userId, It.IsAny<ToDoStatuses>()).Result;
+            var result = this._toDoService.GetItemsByStatus(_testUser, It.IsAny<ToDoStatuses>()).Result;
 
             // assert
             Assert.IsNotNull(result);
@@ -111,15 +109,13 @@ namespace ToDo.Tests.Services
         public void ShouldReturn_AllToDoItems_When_ToDoItemsByToDoStatusFound()
         {
             //set up
-            int userId = 1;
-
             var toDoItemOne = new ToDoItem
             {
                 ItemId = 1,
                 ItemTitle = "Test To Do Item One",
                 ItemStatus = ToDoStatuses.ToDo,
                 ItemDueOn = DateTimeOffset.Now.AddHours(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var toDoItemTwo = new ToDoItem
@@ -128,7 +124,7 @@ namespace ToDo.Tests.Services
                 ItemTitle = "Test To Do Item Two",
                 ItemStatus = ToDoStatuses.InProgress,
                 ItemDueOn = DateTimeOffset.Now.AddHours(2),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite()
@@ -142,7 +138,7 @@ namespace ToDo.Tests.Services
             this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
 
             // test
-            var result = this._toDoService.GetItemsByStatus(userId, ToDoStatuses.InProgress).Result;
+            var result = this._toDoService.GetItemsByStatus(_testUser, ToDoStatuses.InProgress).Result;
 
             // assert
             Assert.IsNotNull(result);
@@ -155,15 +151,13 @@ namespace ToDo.Tests.Services
         public void ShouldReturn_Null_When_NoToDoItemsByItemIdFound()
         {
             //set up
-            int userId = 1;
-
             var toDoItem = new ToDoItem
             {
                 ItemId = 1,
                 ItemTitle = "Test To Do Item",
                 ItemStatus = ToDoStatuses.InProgress,
                 ItemDueOn = DateTimeOffset.Now.AddHours(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite()
@@ -175,7 +169,7 @@ namespace ToDo.Tests.Services
             this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
 
             // test
-            var result = this._toDoService.GetItemByItemId(userId, It.IsAny<int>()).Result;
+            var result = this._toDoService.GetItemByItemId(_testUser, It.IsAny<int>()).Result;
 
             // assert
             Assert.IsNull(result);
@@ -187,7 +181,6 @@ namespace ToDo.Tests.Services
         public void ShouldReturn_ToDoItem_When_ToDoItemByItemIdFound()
         {
             //set up
-            int userId = 1;
             int itemIdToFindBy = 1;
 
             var toDoItem = new ToDoItem
@@ -196,7 +189,7 @@ namespace ToDo.Tests.Services
                 ItemTitle = "Test To Do Item One",
                 ItemStatus = ToDoStatuses.ToDo,
                 ItemDueOn = DateTimeOffset.Now.AddHours(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite()
@@ -209,7 +202,7 @@ namespace ToDo.Tests.Services
             this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
 
             // test
-            var result = this._toDoService.GetItemByItemId(userId, itemIdToFindBy).Result;
+            var result = this._toDoService.GetItemByItemId(_testUser, itemIdToFindBy).Result;
 
             // assert
             Assert.IsNotNull(result);
@@ -226,15 +219,13 @@ namespace ToDo.Tests.Services
         public void ShouldCreate_ToDoItem_When_ToDoItemIsValid()
         {
             //set up
-            int userId = 1;
-
             var toDoItemToCreate = new ToDoItem
             {
                 ItemId = 1,
                 ItemTitle = "Test To Do Item One",
                 ItemStatus = ToDoStatuses.ToDo,
                 ItemDueOn = DateTimeOffset.Now.AddHours(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite().Build();
@@ -245,7 +236,7 @@ namespace ToDo.Tests.Services
             this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
 
             // test
-            var toDoItem = this._toDoService.CreateItem(userId, toDoItemToCreate).Result;
+            var toDoItem = this._toDoService.CreateItem(_testUser, toDoItemToCreate).Result;
 
             // assert
             Assert.IsNotNull(toDoItem);
@@ -261,15 +252,13 @@ namespace ToDo.Tests.Services
         public void ShouldReturn_Null_When_ToDoItemIsNotFoundForUpdate()
         {
             // set up
-            int userId = 1;
-
             var toDoItemOne = new ToDoItem
             {
                 ItemId = 1,
                 ItemTitle = "Test To Do Item One",
                 ItemStatus = ToDoStatuses.ToDo,
                 ItemDueOn = DateTimeOffset.Now.AddHours(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var toDoItemTwo = new ToDoItem
@@ -278,7 +267,7 @@ namespace ToDo.Tests.Services
                 ItemTitle = "Test To Do Item Two",
                 ItemStatus = ToDoStatuses.InProgress,
                 ItemDueOn = DateTimeOffset.Now.AddHours(2),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite()
@@ -291,7 +280,7 @@ namespace ToDo.Tests.Services
             this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
 
             // test
-            var result = this._toDoService.UpdateItem(userId, toDoItemTwo).Result;
+            var result = this._toDoService.UpdateItem(_testUser, toDoItemTwo).Result;
 
             // assert
             Assert.IsNull(result);
@@ -303,15 +292,13 @@ namespace ToDo.Tests.Services
         public void ShouldUpdate_ToDoItem_When_ToDoItemIsFound()
         {
             // set up
-            int userId = 1;
-
             var toDoItemOne = new ToDoItem
             {
                 ItemId = 1,
                 ItemTitle = "Test To Do Item One",
                 ItemStatus = ToDoStatuses.ToDo,
                 ItemDueOn = DateTimeOffset.Now.AddHours(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var toDoItemTwo = new ToDoItem
@@ -320,7 +307,7 @@ namespace ToDo.Tests.Services
                 ItemTitle = "Test To Do Item Two",
                 ItemStatus = ToDoStatuses.InProgress,
                 ItemDueOn = DateTimeOffset.Now.AddHours(2),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var toDoItemToUpdate = new ToDoItem
@@ -329,7 +316,7 @@ namespace ToDo.Tests.Services
                 ItemTitle = "Test To Do Item One For Update",
                 ItemStatus = ToDoStatuses.InProgress,
                 ItemDueOn = DateTimeOffset.Now.AddDays(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite()
@@ -343,7 +330,7 @@ namespace ToDo.Tests.Services
             this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
 
             // test
-            var toDoItem = this._toDoService.UpdateItem(userId, toDoItemToUpdate).Result;
+            var toDoItem = this._toDoService.UpdateItem(_testUser, toDoItemToUpdate).Result;
 
             // assert
             Assert.IsNotNull(toDoItem);
@@ -360,7 +347,6 @@ namespace ToDo.Tests.Services
         public void ShouldReturn_Null_When_ToDoItemIsNotFoundForStatusPatch()
         {
             // set up
-            int userId = 1;
             ToDoStatuses itemStatusToPatch = ToDoStatuses.InProgress;
 
             var toDoItemOne = new ToDoItem
@@ -369,7 +355,7 @@ namespace ToDo.Tests.Services
                 ItemTitle = "Test To Do Item One",
                 ItemStatus = ToDoStatuses.ToDo,
                 ItemDueOn = DateTimeOffset.Now.AddHours(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var toDoItemTwo = new ToDoItem
@@ -378,7 +364,7 @@ namespace ToDo.Tests.Services
                 ItemTitle = "Test To Do Item Two",
                 ItemStatus = ToDoStatuses.InProgress,
                 ItemDueOn = DateTimeOffset.Now.AddHours(2),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite()
@@ -391,7 +377,7 @@ namespace ToDo.Tests.Services
             this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
 
             // test
-            var result = this._toDoService.PatchItemStatus(userId, toDoItemTwo.ItemId, itemStatusToPatch).Result;
+            var result = this._toDoService.PatchItemStatus(_testUser, toDoItemTwo.ItemId, itemStatusToPatch).Result;
 
             // assert
             Assert.IsNull(result);
@@ -403,7 +389,6 @@ namespace ToDo.Tests.Services
         public void ShouldPatch_ToDoItemStatus_When_ToDoItemIsFoundForStatusPatch()
         {
             // set up
-            int userId = 1;
             ToDoStatuses itemStatusToPatch = ToDoStatuses.InProgress;
 
             var toDoItemOne = new ToDoItem
@@ -412,7 +397,7 @@ namespace ToDo.Tests.Services
                 ItemTitle = "Test To Do Item One",
                 ItemStatus = ToDoStatuses.ToDo,
                 ItemDueOn = DateTimeOffset.Now.AddHours(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite()
@@ -425,7 +410,7 @@ namespace ToDo.Tests.Services
             this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
 
             // test
-            var toDoItem = this._toDoService.PatchItemStatus(userId, toDoItemOne.ItemId, itemStatusToPatch).Result;
+            var toDoItem = this._toDoService.PatchItemStatus(_testUser, toDoItemOne.ItemId, itemStatusToPatch).Result;
 
             // assert
             Assert.IsNotNull(toDoItem);
@@ -439,15 +424,13 @@ namespace ToDo.Tests.Services
         public void ShouldReturn_Null_When_ToDoItemIsNotFoundForDelete()
         {
             // set up
-            int userId = 1;
-
             var toDoItemOne = new ToDoItem
             {
                 ItemId = 1,
                 ItemTitle = "Test To Do Item One",
                 ItemStatus = ToDoStatuses.ToDo,
                 ItemDueOn = DateTimeOffset.Now.AddHours(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var toDoItemTwo = new ToDoItem
@@ -456,7 +439,7 @@ namespace ToDo.Tests.Services
                 ItemTitle = "Test To Do Item Two",
                 ItemStatus = ToDoStatuses.InProgress,
                 ItemDueOn = DateTimeOffset.Now.AddHours(2),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite()
@@ -469,10 +452,10 @@ namespace ToDo.Tests.Services
             this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
 
             // test
-            this._toDoService.DeleteItem(userId, toDoItemTwo.ItemId);
+            this._toDoService.DeleteItem(_testUser, toDoItemTwo.ItemId);
 
             // assert
-            Assert.AreEqual(1, this._toDoService.GetItems(userId).Result.Count);
+            Assert.AreEqual(1, this._toDoService.GetItems(_testUser).Result.Count);
 
             messageSender.Verify(mock => mock.SendMessage(It.IsAny<string>()), Times.Never);
         }
@@ -481,15 +464,13 @@ namespace ToDo.Tests.Services
         public void ShouldDelete_ToDoItem_When_ToDoItemIsFoundForDelete()
         {
             // set up
-            int userId = 1;
-
             var toDoItemOne = new ToDoItem
             {
                 ItemId = 1,
                 ItemTitle = "Test To Do Item One",
                 ItemStatus = ToDoStatuses.ToDo,
                 ItemDueOn = DateTimeOffset.Now.AddHours(1),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var toDoItemTwo = new ToDoItem
@@ -498,7 +479,7 @@ namespace ToDo.Tests.Services
                 ItemTitle = "Test To Do Item Two",
                 ItemStatus = ToDoStatuses.InProgress,
                 ItemDueOn = DateTimeOffset.Now.AddHours(2),
-                UserId = userId
+                UserId = Guid.Parse(_testUser.Id)
             };
 
             var mockDatabaseContext = new ToDoDbContextBuilder().UseInMemorySqlite()
@@ -512,10 +493,10 @@ namespace ToDo.Tests.Services
             this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
 
             // test
-            this._toDoService.DeleteItem(userId, toDoItemOne.ItemId);
+            this._toDoService.DeleteItem(_testUser, toDoItemOne.ItemId);
 
             // assert
-            var toDoItems = this._toDoService.GetItems(userId).Result;
+            var toDoItems = this._toDoService.GetItems(_testUser).Result;
 
             Assert.AreEqual(1, toDoItems.Count);
             Assert.AreEqual(toDoItemTwo.ItemId, toDoItems[0].ItemId);

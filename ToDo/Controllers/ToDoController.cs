@@ -18,9 +18,9 @@ namespace ToDo.Controllers
     public class ToDoController : Controller
     {
         private readonly IToDoService _todoService;
-        private readonly UserManager<ApplicationUser> _userManager;
+        private readonly UserManager<IdentityUser> _userManager;
 
-        public ToDoController(IToDoService todoService, UserManager<ApplicationUser> userManager)
+        public ToDoController(IToDoService todoService, UserManager<IdentityUser> userManager)
         {
             this._todoService = todoService;
             this._userManager = userManager;
@@ -36,7 +36,7 @@ namespace ToDo.Controllers
 
             try
             {
-                var result = await _todoService.GetItems(Convert.ToInt32(currentUser.Id));
+                var result = await _todoService.GetItems(currentUser);
                 return Ok(result);
             }
             catch (Exception)
@@ -56,7 +56,7 @@ namespace ToDo.Controllers
 
             try
             {
-                var result = await _todoService.GetItemsByStatus(Convert.ToInt32(currentUser.Id), itemStatus);
+                var result = await _todoService.GetItemsByStatus(currentUser, itemStatus);
                 return Ok(result);
             }
             catch (Exception)
@@ -76,7 +76,7 @@ namespace ToDo.Controllers
 
             try
             {
-                var result = await _todoService.GetItemByItemId(Convert.ToInt32(currentUser.Id), itemId);
+                var result = await _todoService.GetItemByItemId(currentUser, itemId);
                 return Ok(result);
             }
             catch (Exception)
@@ -96,7 +96,7 @@ namespace ToDo.Controllers
 
             try
             {
-                var result = await this._todoService.CreateItem(Convert.ToInt32(currentUser.Id), toDoItem);
+                var result = await this._todoService.CreateItem(currentUser, toDoItem);
                 return Ok(result);
             }
             catch (Exception)
@@ -116,7 +116,7 @@ namespace ToDo.Controllers
 
             try
             {
-                var result = await this._todoService.UpdateItem(Convert.ToInt32(currentUser.Id), toDoItem);
+                var result = await this._todoService.UpdateItem(currentUser, toDoItem);
                 return Ok(result);
             }
             catch (Exception)
@@ -136,7 +136,7 @@ namespace ToDo.Controllers
 
             try
             {
-                await this._todoService.DeleteItem(Convert.ToInt32(currentUser.Id), itemId);
+                await this._todoService.DeleteItem(currentUser, itemId);
                 return Ok();
             }
             catch (Exception)
@@ -157,7 +157,7 @@ namespace ToDo.Controllers
             try
             {
                 var result =
-                    await this._todoService.PatchItemStatus(Convert.ToInt32(currentUser.Id), itemId, itemStatus);
+                    await this._todoService.PatchItemStatus(currentUser, itemId, itemStatus);
                 return Ok(result);
             }
             catch

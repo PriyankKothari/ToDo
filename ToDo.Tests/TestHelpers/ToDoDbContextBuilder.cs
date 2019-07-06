@@ -47,7 +47,8 @@ namespace ToDo.Tests.TestHelpers
             return dbContext;
         }
 
-        public ToDoDbContextBuilder WithToDoItem(int itemId, string itemTitle, ToDoStatuses itemStatus, DateTimeOffset? itemDueOn, int userId)
+        public ToDoDbContextBuilder WithToDoItem(int itemId, string itemTitle, ToDoStatuses itemStatus,
+            DateTimeOffset? itemDueOn, Guid userId)
         {
             var toDoItem = new ToDoItem
             {

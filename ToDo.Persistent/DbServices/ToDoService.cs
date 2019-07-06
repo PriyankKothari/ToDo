@@ -4,6 +4,7 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ToDo.Domain.Extensions;
 using ToDo.Persistent.DbContexts;
@@ -24,24 +25,25 @@ namespace ToDo.Persistent.DbServices
             this._messageSender = messageSender;
         }
 
-        public async Task<List<ToDoItem>> GetItems(int userId)
+        public async Task<List<ToDoItem>> GetItems(IdentityUser user)
         {
             try
             {
-                return await this._toDoDbContext.ToDoItems.Where(td => td.UserId.Equals(userId)).AsNoTracking()
-                    .ToListAsync(CancellationToken.None);
+                return await this._toDoDbContext.ToDoItems.Where(td => td.UserId.Equals(Guid.Parse(user.Id)))
+                    .AsNoTracking().ToListAsync(CancellationToken.None);
             }
+
             catch (Exception exception)
             {
                 throw new Exception($"Something went wrong while getting your ToDo Items: {exception}");
             }
         }
 
-        public async Task<List<ToDoItem>> GetItemsByStatus(int userId, ToDoStatuses itemStatus)
+        public async Task<List<ToDoItem>> GetItemsByStatus(IdentityUser user, ToDoStatuses itemStatus)
         {
             try
             {
-                return await this._toDoDbContext.ToDoItems.Where(td => td.UserId.Equals(userId))
+                return await this._toDoDbContext.ToDoItems.Where(td => td.UserId.Equals(Guid.Parse(user.Id)))
                     .Where(td => td.ItemStatus.Equals(itemStatus)).AsNoTracking().ToListAsync(CancellationToken.None);
             }
             catch (Exception exception)
@@ -51,12 +53,12 @@ namespace ToDo.Persistent.DbServices
             }
         }
 
-        public async Task<ToDoItem> GetItemByItemId(int userId, int itemId)
+        public async Task<ToDoItem> GetItemByItemId(IdentityUser user, int itemId)
         {
             try
             {
                 return await this._toDoDbContext.ToDoItems.SingleOrDefaultAsync(
-                    td => td.UserId.Equals(userId) && td.ItemId.Equals(itemId), CancellationToken.None);
+                    td => td.UserId.Equals(Guid.Parse(user.Id)) && td.ItemId.Equals(itemId), CancellationToken.None);
             }
             catch (Exception exception)
             {
@@ -64,7 +66,7 @@ namespace ToDo.Persistent.DbServices
             }
         }
 
-        public async Task<ToDoItem> CreateItem(int userId, ToDoItem item)
+        public async Task<ToDoItem> CreateItem(IdentityUser user, ToDoItem item)
         {
             try
             {
@@ -75,7 +77,7 @@ namespace ToDo.Persistent.DbServices
                     ItemId = item.ItemId,
                     ItemTitle = item.ItemTitle,
                     ItemStatus = item.ItemStatus,
-                    UserId = userId,
+                    UserId = Guid.Parse(user.Id),
                     ItemDueOn = item.ItemDueOn
                 };
 
@@ -103,7 +105,7 @@ namespace ToDo.Persistent.DbServices
             }
         }
 
-        public async Task<ToDoItem> UpdateItem(int userId, ToDoItem item)
+        public async Task<ToDoItem> UpdateItem(IdentityUser user, ToDoItem item)
         {
             try
             {
@@ -111,7 +113,7 @@ namespace ToDo.Persistent.DbServices
 
                 var itemToUpdate =
                     this._toDoDbContext.ToDoItems.SingleOrDefault(td =>
-                        td.UserId.Equals(userId) && td.ItemId.Equals(item.ItemId));
+                        td.UserId.Equals(Guid.Parse(user.Id)) && td.ItemId.Equals(item.ItemId));
 
                 if (itemToUpdate == null)
                     return null;
@@ -144,7 +146,7 @@ namespace ToDo.Persistent.DbServices
             }
         }
 
-        public async Task<ToDoItem> PatchItemStatus(int userId, int itemId, ToDoStatuses itemStatus)
+        public async Task<ToDoItem> PatchItemStatus(IdentityUser user, int itemId, ToDoStatuses itemStatus)
         {
             try
             {
@@ -152,7 +154,7 @@ namespace ToDo.Persistent.DbServices
 
                 var itemToPatch =
                     this._toDoDbContext.ToDoItems.SingleOrDefault(
-                        td => td.UserId.Equals(userId) && td.ItemId.Equals(itemId));
+                        td => td.UserId.Equals(Guid.Parse(user.Id)) && td.ItemId.Equals(itemId));
 
                 if (itemToPatch == null)
                     return null;
@@ -181,14 +183,14 @@ namespace ToDo.Persistent.DbServices
             }
         }
 
-        public async Task DeleteItem(int userId, int itemId)
+        public async Task DeleteItem(IdentityUser user, int itemId)
         {
             try
             {
                 #region Delete ToDo Item
                 var itemToDelete =
                     this._toDoDbContext.ToDoItems.SingleOrDefault(
-                        td => td.UserId.Equals(userId) && td.ItemId.Equals(itemId));
+                        td => td.UserId.Equals(Guid.Parse(user.Id)) && td.ItemId.Equals(itemId));
 
                 if (itemToDelete == null)
                     return;

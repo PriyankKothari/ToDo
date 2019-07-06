@@ -1,10 +1,11 @@
 ﻿using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
 
 namespace ToDo.Persistent.DbContexts
 {
-    public class AuthorisationDbContext : Microsoft.AspNetCore.Identity.EntityFrameworkCore.IdentityDbContext
+    public class AuthorisationDbContext : IdentityDbContext<IdentityUser>
     {
         public AuthorisationDbContext(DbContextOptions<AuthorisationDbContext> options) : base(options)
         {

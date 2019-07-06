@@ -11,7 +11,7 @@ namespace ToDo.Persistent.DbObjects
 
         public ToDoStatuses ItemStatus { get; set; }
 
-        public int UserId { get; set; }
+        public Guid UserId { get; set; }
 
         public DateTimeOffset? ItemDueOn { get; set; }
     }
