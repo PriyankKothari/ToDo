@@ -2,27 +2,26 @@
 using System.Collections.Generic;
 using System.Data.Common;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.Azure.ServiceBus;
 using Microsoft.EntityFrameworkCore;
 using ToDo.Domain.Extensions;
 using ToDo.Persistent.DbContexts;
 using ToDo.Persistent.DbEnums;
 using ToDo.Persistent.DbObjects;
+using ToDo.ServiceBus.MessageSenders;
 
 namespace ToDo.Persistent.DbServices
 {
     public class ToDoService : IToDoService
     {
         private readonly IToDoDbContext _toDoDbContext;
-        private readonly IQueueClient _queueClient;
+        private readonly IMessageSender _messageSender;
 
-        private ToDoService(IToDoDbContext toDoDbContext, string serviceBusConnectionString, string queueName)
+        public ToDoService(IToDoDbContext toDoDbContext, IMessageSender messageSender)
         {
             this._toDoDbContext = toDoDbContext;
-            this._queueClient = new QueueClient(serviceBusConnectionString, queueName);
+            this._messageSender = messageSender;
         }
 
         public async Task<List<ToDoItem>> GetItems(int userId)
@@ -77,7 +76,7 @@ namespace ToDo.Persistent.DbServices
                     ItemTitle = item.ItemTitle,
                     ItemStatus = item.ItemStatus,
                     UserId = userId,
-                    ItemDueDateTime = item.ItemDueDateTime
+                    ItemDueOn = item.ItemDueOn
                 };
 
                 this._toDoDbContext.ToDoItems.Add(itemToCreate);
@@ -88,14 +87,7 @@ namespace ToDo.Persistent.DbServices
 
                 #region Push Message to Azure Service Bus
 
-                try
-                {
-                    await this._queueClient.SendAsync(new Message(Encoding.UTF8.GetBytes(string.Empty)));
-                }
-                catch (Exception exception)
-                {
-                    throw new Exception(exception.Message);
-                }
+                await this._messageSender.SendMessage(string.Empty);
 
                 #endregion
 
@@ -126,7 +118,7 @@ namespace ToDo.Persistent.DbServices
 
                 itemToUpdate.ItemTitle = item.ItemTitle;
                 itemToUpdate.ItemStatus = item.ItemStatus;
-                itemToUpdate.ItemDueDateTime = item.ItemDueDateTime;
+                itemToUpdate.ItemDueOn = item.ItemDueOn;
 
                 this._toDoDbContext.ToDoItems.Update(itemToUpdate);
 
@@ -136,7 +128,7 @@ namespace ToDo.Persistent.DbServices
 
                 #region Push Message to Azure Service Bus
 
-                await this._queueClient.SendAsync(new Message(Encoding.UTF8.GetBytes(string.Empty)));
+                await this._messageSender.SendMessage(string.Empty);
 
                 #endregion
 
@@ -173,7 +165,7 @@ namespace ToDo.Persistent.DbServices
 
                 #region Push Message to Azure Service Bus
 
-                await this._queueClient.SendAsync(new Message(Encoding.UTF8.GetBytes(string.Empty)));
+                await this._messageSender.SendMessage(string.Empty);
 
                 #endregion
 
@@ -208,7 +200,7 @@ namespace ToDo.Persistent.DbServices
 
                 #region Push Message to Azure Service Bus
 
-                await this._queueClient.SendAsync(new Message(Encoding.UTF8.GetBytes(string.Empty)));
+                await this._messageSender.SendMessage(string.Empty);
 
                 #endregion
             }

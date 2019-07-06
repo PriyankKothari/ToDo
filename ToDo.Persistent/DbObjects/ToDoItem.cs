@@ -13,6 +13,6 @@ namespace ToDo.Persistent.DbObjects
 
         public int UserId { get; set; }
 
-        public DateTimeOffset? ItemDueDateTime { get; set; }
+        public DateTimeOffset? ItemDueOn { get; set; }
     }
 }
