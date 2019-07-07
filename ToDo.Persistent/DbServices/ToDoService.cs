@@ -101,7 +101,7 @@ namespace ToDo.Persistent.DbServices
                     EventCreateDateTime = DateTime.Now,
                     EventPayLoad = item.ObjectToJson()
                 };
-                await this._messageSender.SendMessage(createdEvent.ObjectToJson());
+                //await this._messageSender.SendMessage(createdEvent.ObjectToJson());
                 await this._eventStoreService.CreateEvent(createdEvent);
 
                 #endregion
@@ -152,7 +152,7 @@ namespace ToDo.Persistent.DbServices
                     EventCreateDateTime = DateTime.Now,
                     EventPayLoad = item.ObjectToJson()
                 };
-                await this._messageSender.SendMessage(updatedEvent.ObjectToJson());
+                //await this._messageSender.SendMessage(updatedEvent.ObjectToJson());
                 await this._eventStoreService.CreateEvent(updatedEvent);
 
                 #endregion
@@ -199,7 +199,7 @@ namespace ToDo.Persistent.DbServices
                     EventCreateDateTime = DateTime.Now,
                     EventPayLoad = $"{{ItemStatus: {itemStatus}}}"
                 };
-                await this._messageSender.SendMessage(patchedEvent.ObjectToJson());
+                //await this._messageSender.SendMessage(patchedEvent.ObjectToJson());
                 await this._eventStoreService.CreateEvent(patchedEvent);
 
                 #endregion
@@ -244,7 +244,7 @@ namespace ToDo.Persistent.DbServices
                     EventCreateDateTime = DateTime.Now,
                     EventPayLoad = itemToDelete.ObjectToJson()
                 };
-                await this._messageSender.SendMessage(deletedEvent.ObjectToJson());
+                //await this._messageSender.SendMessage(deletedEvent.ObjectToJson());
                 await this._eventStoreService.CreateEvent(deletedEvent);
 
                 #endregion

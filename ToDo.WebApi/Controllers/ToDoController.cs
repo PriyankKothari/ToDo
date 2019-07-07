@@ -13,25 +13,30 @@ namespace ToDo.WebApi.Controllers
 {
     [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/todos")]
-    [Authorize]
+    //    [Authorize]
     public class ToDoController : Controller
     {
         private readonly IToDoService _todoService;
         private readonly UserManager<IdentityUser> _userManager;
+        private readonly IdentityUser _testIdentityUser;
+        private const string IdentityUserName = "TestUser";
 
         public ToDoController(IToDoService todoService, UserManager<IdentityUser> userManager)
         {
             this._todoService = todoService;
             this._userManager = userManager;
+            this._testIdentityUser = new IdentityUser(IdentityUserName);
         }
 
         [HttpGet]
         public async Task<IActionResult> Get()
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User) ?? this._testIdentityUser;
 
+            /*
             if (currentUser == null)
                 return Unauthorized();
+             */
 
             try
             {
@@ -48,10 +53,12 @@ namespace ToDo.WebApi.Controllers
         [HttpGet("{itemStatus:itemStatus}")]
         public async Task<IActionResult> GetByItemStatus(ToDoStatuses itemStatus)
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User) ?? this._testIdentityUser;
 
+            /*
             if (currentUser == null)
                 return Unauthorized();
+             */
 
             try
             {
@@ -68,10 +75,12 @@ namespace ToDo.WebApi.Controllers
         [HttpGet("{itemId:int}")]
         public async Task<IActionResult> GetByItemId(int itemId)
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User) ?? this._testIdentityUser;
 
+            /*
             if (currentUser == null)
                 return Unauthorized();
+             */
 
             try
             {
@@ -88,10 +97,12 @@ namespace ToDo.WebApi.Controllers
         [HttpPost]
         public async Task<IActionResult> Create([FromBody] ToDoItem toDoItem)
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User) ?? this._testIdentityUser;
 
+            /*
             if (currentUser == null)
                 return Unauthorized();
+             */
 
             try
             {
@@ -108,10 +119,12 @@ namespace ToDo.WebApi.Controllers
         [HttpPut]
         public async Task<IActionResult> Update([FromBody] ToDoItem toDoItem)
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User) ?? this._testIdentityUser;
 
+            /*
             if (currentUser == null)
                 return Unauthorized();
+             */
 
             try
             {
@@ -128,10 +141,12 @@ namespace ToDo.WebApi.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete([Required] int itemId)
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User) ?? this._testIdentityUser;
 
+            /*
             if (currentUser == null)
                 return Unauthorized();
+             */
 
             try
             {
@@ -148,10 +163,12 @@ namespace ToDo.WebApi.Controllers
         [HttpPatch("{itemId:int}/status/{itemStatus:itemStatus}")]
         public async Task<IActionResult> PatchStatus([Required] int itemId, [Required] ToDoStatuses itemStatus)
         {
-            var currentUser = await _userManager.GetUserAsync(HttpContext.User);
+            var currentUser = await _userManager.GetUserAsync(HttpContext.User) ?? this._testIdentityUser;
 
+            /*
             if (currentUser == null)
                 return Unauthorized();
+             */
 
             try
             {
