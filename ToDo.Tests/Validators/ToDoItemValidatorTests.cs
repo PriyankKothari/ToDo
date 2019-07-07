@@ -3,7 +3,7 @@ using FluentValidation.TestHelper;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using ToDo.Persistent.DbEnums;
-using ToDo.Validators;
+using ToDo.WebApi.Validators;
 
 namespace ToDo.Tests.Validators
 {

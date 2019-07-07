@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\ToDo.Domain\ToDo.Domain.csproj" />
     <ProjectReference Include="..\ToDo.Persistent\ToDo.Persistent.csproj" />
+    <ProjectReference Include="..\ToDo.WebApi\ToDo.WebApi.csproj" />
   </ItemGroup>
 
 </Project>

@@ -15,7 +15,13 @@ namespace ToDo.Tests.Services
     public class ToDoServiceTests
     {
         private IToDoService _toDoService;
+        private readonly IEventStoreService _eventStoreService;
         private readonly IdentityUser _testUser = new IdentityUser("TestUser");
+
+        public ToDoServiceTests()
+        {
+            this._eventStoreService = new EventStoreService(new ToDoDbContextBuilder().UseInMemorySqlite().Build());
+        }
 
 
         [TestMethod]
@@ -26,7 +32,7 @@ namespace ToDo.Tests.Services
             messageSender.Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
             this._toDoService =
-                new ToDoService(new ToDoDbContextBuilder().UseInMemorySqlite().Build(), messageSender.Object);
+                new ToDoService(new ToDoDbContextBuilder().UseInMemorySqlite().Build(), this._eventStoreService, messageSender.Object);
 
             // test
             var result = this._toDoService.GetItems(_testUser).Result;
@@ -57,7 +63,7 @@ namespace ToDo.Tests.Services
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
-            this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
+            this._toDoService = new ToDoService(mockDatabaseContext, this._eventStoreService, messageSender.Object);
 
             // test
             var result = this._toDoService.GetItems(_testUser).Result;
@@ -93,7 +99,7 @@ namespace ToDo.Tests.Services
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
-            this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
+            this._toDoService = new ToDoService(mockDatabaseContext, this._eventStoreService, messageSender.Object);
 
             // test
             var result = this._toDoService.GetItemsByStatus(_testUser, It.IsAny<ToDoStatuses>()).Result;
@@ -135,7 +141,7 @@ namespace ToDo.Tests.Services
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
-            this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
+            this._toDoService = new ToDoService(mockDatabaseContext, this._eventStoreService, messageSender.Object);
 
             // test
             var result = this._toDoService.GetItemsByStatus(_testUser, ToDoStatuses.InProgress).Result;
@@ -166,7 +172,7 @@ namespace ToDo.Tests.Services
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
-            this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
+            this._toDoService = new ToDoService(mockDatabaseContext, this._eventStoreService, messageSender.Object);
 
             // test
             var result = this._toDoService.GetItemByItemId(_testUser, It.IsAny<int>()).Result;
@@ -199,7 +205,7 @@ namespace ToDo.Tests.Services
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
-            this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
+            this._toDoService = new ToDoService(mockDatabaseContext, this._eventStoreService, messageSender.Object);
 
             // test
             var result = this._toDoService.GetItemByItemId(_testUser, itemIdToFindBy).Result;
@@ -233,7 +239,7 @@ namespace ToDo.Tests.Services
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
-            this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
+            this._toDoService = new ToDoService(mockDatabaseContext, this._eventStoreService, messageSender.Object);
 
             // test
             var toDoItem = this._toDoService.CreateItem(_testUser, toDoItemToCreate).Result;
@@ -277,7 +283,7 @@ namespace ToDo.Tests.Services
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
-            this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
+            this._toDoService = new ToDoService(mockDatabaseContext, this._eventStoreService, messageSender.Object);
 
             // test
             var result = this._toDoService.UpdateItem(_testUser, toDoItemTwo).Result;
@@ -327,7 +333,7 @@ namespace ToDo.Tests.Services
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
-            this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
+            this._toDoService = new ToDoService(mockDatabaseContext, this._eventStoreService, messageSender.Object);
 
             // test
             var toDoItem = this._toDoService.UpdateItem(_testUser, toDoItemToUpdate).Result;
@@ -374,7 +380,7 @@ namespace ToDo.Tests.Services
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
-            this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
+            this._toDoService = new ToDoService(mockDatabaseContext, this._eventStoreService, messageSender.Object);
 
             // test
             var result = this._toDoService.PatchItemStatus(_testUser, toDoItemTwo.ItemId, itemStatusToPatch).Result;
@@ -407,7 +413,7 @@ namespace ToDo.Tests.Services
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
-            this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
+            this._toDoService = new ToDoService(mockDatabaseContext, this._eventStoreService, messageSender.Object);
 
             // test
             var toDoItem = this._toDoService.PatchItemStatus(_testUser, toDoItemOne.ItemId, itemStatusToPatch).Result;
@@ -449,7 +455,7 @@ namespace ToDo.Tests.Services
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
-            this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
+            this._toDoService = new ToDoService(mockDatabaseContext, this._eventStoreService, messageSender.Object);
 
             // test
             this._toDoService.DeleteItem(_testUser, toDoItemTwo.ItemId);
@@ -490,7 +496,7 @@ namespace ToDo.Tests.Services
             var messageSender = new Mock<IMessageSender>();
             new Mock<IMessageSender>().Setup(i => i.SendMessage(It.IsAny<string>())).Returns(It.IsAny<Task>());
 
-            this._toDoService = new ToDoService(mockDatabaseContext, messageSender.Object);
+            this._toDoService = new ToDoService(mockDatabaseContext, this._eventStoreService, messageSender.Object);
 
             // test
             this._toDoService.DeleteItem(_testUser, toDoItemOne.ItemId);
