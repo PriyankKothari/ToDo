@@ -5,6 +5,9 @@ using ToDo.Persistent.DbObjects;
 
 namespace ToDo.WebApi.Validators
 {
+    /// <summary>
+    /// To-Do item validations
+    /// </summary>
     public class ToDoItemValidator : AbstractValidator<ToDoItem>
     {
         /// <summary>
