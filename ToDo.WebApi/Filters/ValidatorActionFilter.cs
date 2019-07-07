@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
-namespace ToDo.Filters
+namespace ToDo.WebApi.Filters
 {
     public class ValidatorActionFilter : IActionFilter
     {

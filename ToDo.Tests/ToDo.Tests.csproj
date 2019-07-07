@@ -16,7 +16,6 @@
   <ItemGroup>
     <ProjectReference Include="..\ToDo.Domain\ToDo.Domain.csproj" />
     <ProjectReference Include="..\ToDo.Persistent\ToDo.Persistent.csproj" />
-    <ProjectReference Include="..\ToDo\ToDo.csproj" />
   </ItemGroup>
 
 </Project>

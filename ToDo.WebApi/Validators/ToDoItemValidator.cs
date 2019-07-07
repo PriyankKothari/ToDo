@@ -3,7 +3,7 @@ using FluentValidation;
 using ToDo.Persistent.DbEnums;
 using ToDo.Persistent.DbObjects;
 
-namespace ToDo.Validators
+namespace ToDo.WebApi.Validators
 {
     public class ToDoItemValidator : AbstractValidator<ToDoItem>
     {
