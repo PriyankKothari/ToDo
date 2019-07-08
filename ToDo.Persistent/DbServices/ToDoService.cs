@@ -18,13 +18,11 @@ namespace ToDo.Persistent.DbServices
     public class ToDoService : IToDoService
     {
         private readonly IToDoDbContext _toDoDbContext;
-        private readonly IEventStoreService _eventStoreService;
         private readonly IMessageSender _messageSender;
 
-        public ToDoService(IToDoDbContext toDoDbContext, IEventStoreService eventStoreService, IMessageSender messageSender)
+        public ToDoService(IToDoDbContext toDoDbContext, IMessageSender messageSender)
         {
             this._toDoDbContext = toDoDbContext;
-            this._eventStoreService = eventStoreService;
             this._messageSender = messageSender;
         }
 
@@ -102,7 +100,6 @@ namespace ToDo.Persistent.DbServices
                     EventPayLoad = item.ObjectToJson()
                 };
                 //await this._messageSender.SendMessage(createdEvent.ObjectToJson());
-                await this._eventStoreService.CreateEvent(createdEvent);
 
                 #endregion
 
@@ -153,7 +150,6 @@ namespace ToDo.Persistent.DbServices
                     EventPayLoad = item.ObjectToJson()
                 };
                 //await this._messageSender.SendMessage(updatedEvent.ObjectToJson());
-                await this._eventStoreService.CreateEvent(updatedEvent);
 
                 #endregion
 
@@ -200,7 +196,6 @@ namespace ToDo.Persistent.DbServices
                     EventPayLoad = $"{{ItemStatus: {itemStatus}}}"
                 };
                 //await this._messageSender.SendMessage(patchedEvent.ObjectToJson());
-                await this._eventStoreService.CreateEvent(patchedEvent);
 
                 #endregion
 
@@ -245,7 +240,6 @@ namespace ToDo.Persistent.DbServices
                     EventPayLoad = itemToDelete.ObjectToJson()
                 };
                 //await this._messageSender.SendMessage(deletedEvent.ObjectToJson());
-                await this._eventStoreService.CreateEvent(deletedEvent);
 
                 #endregion
             }
