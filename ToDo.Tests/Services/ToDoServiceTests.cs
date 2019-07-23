@@ -15,7 +15,7 @@ namespace ToDo.Tests.Services
     public class ToDoServiceTests
     {
         private IToDoService _toDoService;
-        private readonly IdentityUser _testUser = new IdentityUser("TestUser");
+        private readonly ApplicationUser _testUser = new ApplicationUser();
 
 
         [TestMethod]

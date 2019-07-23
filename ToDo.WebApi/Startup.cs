@@ -1,6 +1,9 @@
 ﻿using System.IO;
+using System.Text;
 using FluentValidation;
 using FluentValidation.AspNetCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Identity;
@@ -10,6 +13,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.PlatformAbstractions;
+using Microsoft.IdentityModel.Logging;
+using Microsoft.IdentityModel.Protocols.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
 using Swashbuckle.AspNetCore.Swagger;
@@ -25,9 +31,7 @@ namespace ToDo.WebApi
 {
     public class Startup
     {
-        private readonly string _swaggerDocsPath = "api-docs";
         private readonly string _swaggerDocsTitle = "ToDo API Swagger Docs";
-        private readonly string _swaggerDocsVersion = "v1";
 
         public Startup(IConfiguration configuration)
         {
@@ -39,6 +43,8 @@ namespace ToDo.WebApi
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            IdentityModelEventSource.ShowPII = true;
+
             services.AddMvcCore().AddVersionedApiExplorer(options =>
             {
                 options.GroupNameFormat = "'v'VVV";
@@ -61,7 +67,31 @@ namespace ToDo.WebApi
             // registering AuthorisationDbContext with Identity
             services.AddDbContext<AuthorisationDbContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("AuthorisationConnectionString")))
-                .AddDefaultIdentity<IdentityUser>().AddEntityFrameworkStores<AuthorisationDbContext>();
+                .AddDefaultIdentity<ApplicationUser>().AddEntityFrameworkStores<AuthorisationDbContext>();
+
+            // registering Authentication
+            services.AddAuthentication("Bearer").AddJwtBearer(options =>
+            {
+                options.RequireHttpsMetadata = bool.Parse(Configuration["IdentityServer:RequireHttpsMetadata"]);
+                options.TokenValidationParameters = new TokenValidationParameters
+                {
+                    ValidateAudience = false,
+                    ValidateIssuer = false,
+                    RequireExpirationTime = true,
+                    ValidateLifetime = true,
+                    IssuerSigningKey =
+                        new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Configuration["IdentityServer:SecretKey"]))
+                };
+                options.Configuration = new OpenIdConnectConfiguration();
+            });
+
+            services.AddAuthorization(options =>
+            {
+                options.DefaultPolicy =
+                    new AuthorizationPolicyBuilder(JwtBearerDefaults.AuthenticationScheme)
+                        .RequireAuthenticatedUser()
+                        .Build();
+            });
 
             // registering ToDoDbContext
             services.AddDbContext<ToDoDbContext>(options =>
@@ -70,8 +100,10 @@ namespace ToDo.WebApi
             });
 
             // registering Services & validators
-            services.AddScoped<UserManager<IdentityUser>>();
+            services.AddScoped<UserManager<ApplicationUser>>();
+            services.AddScoped<AuthorisationDbContext>();
             services.AddScoped<IToDoDbContext, ToDoDbContext>();
+            services.AddScoped<IAuthenticationService, AuthenticationService>();
             services.AddScoped<IToDoService, ToDoService>();
             services.AddScoped<IEventStoreService, EventStoreService>();
             services.AddScoped<IMessageSender>(provider =>
@@ -82,16 +114,15 @@ namespace ToDo.WebApi
             // registering swagger
             services.AddSwaggerGen(options =>
             {
-                var provider = services.BuildServiceProvider().GetRequiredService<IApiVersionDescriptionProvider>();
-                foreach (var description in provider.ApiVersionDescriptions)
+                foreach (var description in services.BuildServiceProvider()
+                    .GetRequiredService<IApiVersionDescriptionProvider>().ApiVersionDescriptions)
                 {
                     options.SwaggerDoc(description.GroupName, CreateInfoForApiVersion(description));
                 }
 
                 // The name of the file is located in project properties -> build tab
-                var filePath = Path.Combine(PlatformServices.Default.Application.ApplicationBasePath,
-                    "ToDo.Api.xml");
-                options.IncludeXmlComments(filePath);
+                options.IncludeXmlComments(Path.Combine(PlatformServices.Default.Application.ApplicationBasePath,
+                    "ToDo.Api.xml"));
             });
         }
 
@@ -133,9 +164,7 @@ namespace ToDo.WebApi
             app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
-
             app.UseAuthentication();
-
             app.UseMvc();
         }
     }

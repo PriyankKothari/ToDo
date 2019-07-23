@@ -17,18 +17,18 @@ namespace ToDo.WebApi.Controllers
     /// </summary>
     [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/todos")]
-    //    [Authorize]
+    [Authorize]
     public class ToDoController : Controller
     {
         private readonly IToDoService _todoService;
-        private readonly UserManager<IdentityUser> _userManager;
+        private readonly UserManager<ApplicationUser> _userManager;
 
         /// <summary>
         /// Constructor
         /// </summary>
         /// <param name="todoService"></param>
         /// <param name="userManager"></param>
-        public ToDoController(IToDoService todoService, UserManager<IdentityUser> userManager)
+        public ToDoController(IToDoService todoService, UserManager<ApplicationUser> userManager)
         {
             this._todoService = todoService;
             this._userManager = userManager;
@@ -40,7 +40,6 @@ namespace ToDo.WebApi.Controllers
         /// <response code = "200">Returns all to-do items.</response>
         /// <response code = "404">Returns NotFound with message: To-do items cannot be found.</response>
         /// <response code = "500">Returns InternalServerError with message: Something went wrong while getting all the to-do items for {currentUser.UserName}. Please try again in a while..</response>
-        [HttpGet]
         [SwaggerOperation("get", Tags = new[] { "ToDo Items" })]
         [ProducesResponseType(typeof(ToDoItem), 200)]
         [ProducesResponseType(404)]
@@ -50,8 +49,8 @@ namespace ToDo.WebApi.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
 
-            if (currentUser == null)
-                return Unauthorized();
+            //if (currentUser == null)
+            //    return Unauthorized();
 
             try
             {
@@ -77,8 +76,8 @@ namespace ToDo.WebApi.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
 
-            if (currentUser == null)
-                return Unauthorized();
+            //if (currentUser == null)
+            //    return Unauthorized();
 
             try
             {
@@ -104,8 +103,8 @@ namespace ToDo.WebApi.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
 
-            if (currentUser == null)
-                return Unauthorized();
+            //if (currentUser == null)
+            //    return Unauthorized();
 
             try
             {
@@ -132,8 +131,8 @@ namespace ToDo.WebApi.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
 
-            if (currentUser == null)
-                return Unauthorized();
+            //if (currentUser == null)
+            //    return Unauthorized();
 
             try
             {
@@ -160,8 +159,8 @@ namespace ToDo.WebApi.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
 
-            if (currentUser == null)
-                return Unauthorized();
+            //if (currentUser == null)
+            //    return Unauthorized();
 
             try
             {
@@ -188,8 +187,8 @@ namespace ToDo.WebApi.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
 
-            if (currentUser == null)
-                return Unauthorized();
+            //if (currentUser == null)
+            //    return Unauthorized();
 
             try
             {
@@ -217,8 +216,8 @@ namespace ToDo.WebApi.Controllers
         {
             var currentUser = await _userManager.GetUserAsync(HttpContext.User);
 
-            if (currentUser == null)
-                return Unauthorized();
+            //if (currentUser == null)
+            //    return Unauthorized();
 
             try
             {

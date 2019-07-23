@@ -14,7 +14,7 @@ namespace ToDo.WebApi.Controllers
     /// </summary>
     [ApiVersion("1.0")]
     [Route("v{version:apiVersion}/events")]
-    //[Authorize]
+    [AllowAnonymous]
     public class EventController : Controller
     {
         private readonly IEventStoreService _eventStoreService;
@@ -39,7 +39,6 @@ namespace ToDo.WebApi.Controllers
         [ProducesResponseType(typeof(Event), 200)]
         [ProducesResponseType(404)]
         [ProducesResponseType(500)]
-        [HttpGet]
         public async Task<IActionResult> Get()
         {
             try

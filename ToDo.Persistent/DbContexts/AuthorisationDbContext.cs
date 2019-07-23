@@ -2,10 +2,11 @@
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata;
+using ToDo.Persistent.DbObjects;
 
 namespace ToDo.Persistent.DbContexts
 {
-    public class AuthorisationDbContext : IdentityDbContext<IdentityUser>
+    public class AuthorisationDbContext : IdentityDbContext<ApplicationUser>
     {
         public AuthorisationDbContext(DbContextOptions<AuthorisationDbContext> options) : base(options)
         {
@@ -40,17 +41,18 @@ namespace ToDo.Persistent.DbContexts
                 .HasForeignKey(irc => irc.RoleId).OnDelete(DeleteBehavior.Cascade);
 
             // IdentityUser
-            modelBuilder.Entity<IdentityUser>().ToTable("AspNetUsers", schema: "Identity").HasKey(iu => iu.Id);
-            modelBuilder.Entity<IdentityUser>().Property(iu => iu.Id).ValueGeneratedOnAdd();
-            modelBuilder.Entity<IdentityUser>().Property(iu => iu.ConcurrencyStamp).IsConcurrencyToken();
-            modelBuilder.Entity<IdentityUser>().Property(iu => iu.Email).HasMaxLength(256);
-            modelBuilder.Entity<IdentityUser>().Property(iu => iu.NormalizedEmail).HasMaxLength(256);
-            modelBuilder.Entity<IdentityUser>().Property(iu => iu.NormalizedUserName).HasMaxLength(256);
-            modelBuilder.Entity<IdentityUser>().Property(iu => iu.UserName).HasMaxLength(256);
-            modelBuilder.Entity<IdentityUser>().Property(iu => iu.Email).HasMaxLength(256);
-            modelBuilder.Entity<IdentityUser>().HasIndex(iu => iu.NormalizedEmail).HasName("EmailIndex");
-            modelBuilder.Entity<IdentityUser>().HasIndex(iu => iu.NormalizedUserName).IsUnique()
+            modelBuilder.Entity<ApplicationUser>().ToTable("AspNetUsers", schema: "Identity").HasKey(iu => iu.Id);
+            modelBuilder.Entity<ApplicationUser>().Property(iu => iu.Id).ValueGeneratedOnAdd();
+            modelBuilder.Entity<ApplicationUser>().Property(iu => iu.ConcurrencyStamp).IsConcurrencyToken();
+            modelBuilder.Entity<ApplicationUser>().Property(iu => iu.Email).HasMaxLength(256);
+            modelBuilder.Entity<ApplicationUser>().Property(iu => iu.NormalizedEmail).HasMaxLength(256);
+            modelBuilder.Entity<ApplicationUser>().Property(iu => iu.NormalizedUserName).HasMaxLength(256);
+            modelBuilder.Entity<ApplicationUser>().Property(iu => iu.UserName).HasMaxLength(256);
+            modelBuilder.Entity<ApplicationUser>().Property(iu => iu.Email).HasMaxLength(256);
+            modelBuilder.Entity<ApplicationUser>().HasIndex(iu => iu.NormalizedEmail).HasName("EmailIndex");
+            modelBuilder.Entity<ApplicationUser>().HasIndex(iu => iu.NormalizedUserName).IsUnique()
                 .HasName("UserNameIndex").HasFilter("[NormalizedUserName] IS NOT NULL");
+            modelBuilder.Entity<ApplicationUser>().Property(iu => iu.Token).HasMaxLength(250);
 
             // IdentityUserClaim
             modelBuilder.Entity<IdentityUserClaim<string>>().ToTable("AspNetUserClaims", schema: "Identity")
@@ -59,7 +61,7 @@ namespace ToDo.Persistent.DbContexts
                 .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
             modelBuilder.Entity<IdentityUserClaim<string>>().Property(iuc => iuc.UserId).IsRequired();
             modelBuilder.Entity<IdentityUserClaim<string>>().HasIndex(iuc => iuc.UserId);
-            modelBuilder.Entity<IdentityUserClaim<string>>().HasOne<IdentityUser>().WithMany()
+            modelBuilder.Entity<IdentityUserClaim<string>>().HasOne<ApplicationUser>().WithMany()
                 .HasForeignKey(iuc => iuc.UserId).OnDelete(DeleteBehavior.Cascade);
 
             // IdentityUserLogin
@@ -69,7 +71,7 @@ namespace ToDo.Persistent.DbContexts
             modelBuilder.Entity<IdentityUserLogin<string>>().Property(iul => iul.ProviderKey).HasMaxLength(128);
             modelBuilder.Entity<IdentityUserLogin<string>>().Property(iul => iul.UserId).IsRequired();
             modelBuilder.Entity<IdentityUserLogin<string>>().HasIndex(iul => iul.UserId);
-            modelBuilder.Entity<IdentityUserLogin<string>>().HasOne<IdentityUser>().WithMany()
+            modelBuilder.Entity<IdentityUserLogin<string>>().HasOne<ApplicationUser>().WithMany()
                 .HasForeignKey(iul => iul.UserId).OnDelete(DeleteBehavior.Cascade);
 
             // IdentityUserRole
@@ -78,7 +80,7 @@ namespace ToDo.Persistent.DbContexts
             modelBuilder.Entity<IdentityUserRole<string>>().HasIndex(iur => iur.RoleId);
             modelBuilder.Entity<IdentityUserRole<string>>().HasOne<IdentityRole>().WithMany()
                 .HasForeignKey(iur => iur.RoleId).OnDelete(DeleteBehavior.Cascade);
-            modelBuilder.Entity<IdentityUserRole<string>>().HasOne<IdentityUser>().WithMany()
+            modelBuilder.Entity<IdentityUserRole<string>>().HasOne<ApplicationUser>().WithMany()
                 .HasForeignKey(iur => iur.UserId).OnDelete(DeleteBehavior.Cascade);
 
             // IdentityUserToken
@@ -86,7 +88,7 @@ namespace ToDo.Persistent.DbContexts
                 .HasKey("UserId", "LoginProvider", "Name");
             modelBuilder.Entity<IdentityUserToken<string>>().Property(iut => iut.LoginProvider).HasMaxLength(128);
             modelBuilder.Entity<IdentityUserToken<string>>().Property(iut => iut.Name).HasMaxLength(128);
-            modelBuilder.Entity<IdentityUserToken<string>>().HasOne<IdentityUser>().WithMany()
+            modelBuilder.Entity<IdentityUserToken<string>>().HasOne<ApplicationUser>().WithMany()
                 .HasForeignKey(iut => iut.UserId).OnDelete(DeleteBehavior.Cascade);
 
             base.OnModelCreating(modelBuilder);

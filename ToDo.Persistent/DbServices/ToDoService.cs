@@ -4,7 +4,6 @@ using System.Data.Common;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ToDo.Domain.Extensions;
 using ToDo.Domain.Helpers;
@@ -26,7 +25,7 @@ namespace ToDo.Persistent.DbServices
             this._messageSender = messageSender;
         }
 
-        public async Task<List<ToDoItem>> GetItems(IdentityUser user)
+        public async Task<List<ToDoItem>> GetItems(ApplicationUser user)
         {
             try
             {
@@ -40,7 +39,7 @@ namespace ToDo.Persistent.DbServices
             }
         }
 
-        public async Task<List<ToDoItem>> GetItemsByStatus(IdentityUser user, ToDoStatuses itemStatus)
+        public async Task<List<ToDoItem>> GetItemsByStatus(ApplicationUser user, ToDoStatuses itemStatus)
         {
             try
             {
@@ -54,7 +53,7 @@ namespace ToDo.Persistent.DbServices
             }
         }
 
-        public async Task<ToDoItem> GetItemByItemId(IdentityUser user, int itemId)
+        public async Task<ToDoItem> GetItemByItemId(ApplicationUser user, int itemId)
         {
             try
             {
@@ -67,7 +66,7 @@ namespace ToDo.Persistent.DbServices
             }
         }
 
-        public async Task<ToDoItem> CreateItem(IdentityUser user, ToDoItem item)
+        public async Task<ToDoItem> CreateItem(ApplicationUser user, ToDoItem item)
         {
             try
             {
@@ -115,7 +114,7 @@ namespace ToDo.Persistent.DbServices
             }
         }
 
-        public async Task<ToDoItem> UpdateItem(IdentityUser user, ToDoItem item)
+        public async Task<ToDoItem> UpdateItem(ApplicationUser user, ToDoItem item)
         {
             try
             {
@@ -165,7 +164,7 @@ namespace ToDo.Persistent.DbServices
             }
         }
 
-        public async Task<ToDoItem> PatchItemStatus(IdentityUser user, int itemId, ToDoStatuses itemStatus)
+        public async Task<ToDoItem> PatchItemStatus(ApplicationUser user, int itemId, ToDoStatuses itemStatus)
         {
             try
             {
@@ -211,7 +210,7 @@ namespace ToDo.Persistent.DbServices
             }
         }
 
-        public async Task DeleteItem(IdentityUser user, int itemId)
+        public async Task DeleteItem(ApplicationUser user, int itemId)
         {
             try
             {
