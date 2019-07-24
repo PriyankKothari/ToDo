@@ -24,14 +24,15 @@ namespace ToDo.WebApi.Controllers
         }
         
         [HttpPost("authenticate")]
-        public IActionResult Authenticate([FromBody] User userParam)
+        public IActionResult Authenticate([FromBody] User user)
         {
-            var user = this._authenticationService.Authenticate(userParam.Username, userParam.Password).Result;
+            var authenticatedUser =
+                this._authenticationService.Authenticate(user.Username, user.Password, out var token);
 
-            if (user == null)
+            if (authenticatedUser == null)
                 return BadRequest(new { message = "Username or password is incorrect" });
 
-            return Ok(user);
+            return Ok(token);
         }
     }
 

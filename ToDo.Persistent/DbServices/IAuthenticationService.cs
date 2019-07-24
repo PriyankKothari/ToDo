@@ -1,10 +1,9 @@
-﻿using System.Threading.Tasks;
-using ToDo.Persistent.DbObjects;
+﻿using Microsoft.AspNetCore.Identity;
 
 namespace ToDo.Persistent.DbServices
 {
     public interface IAuthenticationService
     {
-        Task<ApplicationUser> Authenticate(string username, string password);
+        IdentityUser Authenticate(string username, string password, out string token);
     }
 }

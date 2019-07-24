@@ -1,11 +1,9 @@
 ﻿using System;
 using System.IdentityModel.Tokens.Jwt;
+using System.Linq;
 using System.Security.Claims;
 using System.Text;
-using System.Threading;
-using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using ToDo.Persistent.DbContexts;
 using ToDo.Persistent.DbObjects;
@@ -16,39 +14,44 @@ namespace ToDo.Persistent.DbServices
     {
         private readonly UserManager<ApplicationUser> _userManager;
         private readonly AuthorisationDbContext _authorisationDbContext;
+        private readonly string _secret;
 
-        private const string Secret = "2BB80D537B1DA3E38BD30361AA855686BDE0EACD7162FEF6A25FE97BF527A25B";
+        //private const string Secret = "2BB80D537B1DA3E38BD30361AA855686BDE0EACD7162FEF6A25FE97BF527A25B";
 
-        public AuthenticationService(UserManager<ApplicationUser> userManager, AuthorisationDbContext authorisationDbContext)
+        public AuthenticationService(UserManager<ApplicationUser> userManager,
+            AuthorisationDbContext authorisationDbContext)
         {
             this._userManager = userManager;
             this._authorisationDbContext = authorisationDbContext;
+            this._secret = "2BB80D537B1DA3E38BD30361AA855686BDE0EACD7162FEF6A25FE97BF527A25B";
         }
-        public async Task<ApplicationUser> Authenticate(string username, string password)
+
+        public IdentityUser Authenticate(string username, string password, out string token)
         {
-            var user = await this._authorisationDbContext.Users.FirstOrDefaultAsync(us => us.UserName.Equals(username),
-                CancellationToken.None);// this._userManager.FindByNameAsync(username);
+            token = string.Empty;
 
-            if (user != null && await _userManager.CheckPasswordAsync(user, password))
+            var authenticatedUser =
+                this._authorisationDbContext.Users.FirstOrDefault(us => us.UserName.Equals(username));
+
+            if (authenticatedUser == null ||
+                !_userManager.CheckPasswordAsync(authenticatedUser, password).Result) return null;
+
+            var tokenHandler = new JwtSecurityTokenHandler();
+            var signingSecretKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(this._secret));
+
+            var tokenDescriptor = new SecurityTokenDescriptor
             {
-                var tokenHandler = new JwtSecurityTokenHandler();
-                var key = Encoding.ASCII.GetBytes(Secret); //
-                var signingKey = new SymmetricSecurityKey(key);
-                var tokenDescriptor = new SecurityTokenDescriptor
+                Subject = new ClaimsIdentity(new[]
                 {
-                    Subject = new ClaimsIdentity(new[]
-                    {
-                        new Claim(ClaimTypes.Email, user.Id)
-                    }),
-                    Expires = DateTime.UtcNow.AddSeconds(10),
-                    SigningCredentials =
-                        new SigningCredentials(signingKey, SecurityAlgorithms.HmacSha256Signature)
-                };
-                var token = tokenHandler.CreateToken(tokenDescriptor);
-                user.Token = tokenHandler.WriteToken(token);
-            }
+                    new Claim(ClaimTypes.Email, username)
+                }),
+                Expires = DateTime.UtcNow.AddMinutes(5),
+                SigningCredentials = new SigningCredentials(signingSecretKey, SecurityAlgorithms.HmacSha256Signature)
+            };
 
-            return user;
+            token = tokenHandler.WriteToken(tokenHandler.CreateToken(tokenDescriptor));
+
+            return authenticatedUser;
         }
     }
 }
